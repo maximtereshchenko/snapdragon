@@ -54,4 +54,23 @@ final class NeuralNetworkTests {
                 }
             );
     }
+
+    @Test
+    void givenMultipleOutputs_whenPredict_thenExpectedPrediction() {
+        var configuration = new NeuralNetworkConfiguration(
+            new InputLayerConfiguration(
+                1,
+                List.of(1.0, 1.0)
+            ),
+            List.of(),
+            new OutputLayerConfiguration(
+                List.of(1.0, 1.0)
+            )
+        );
+        var neuralNetwork = NeuralNetwork.from(configuration);
+
+        var output = 1 / (1 + Math.pow(Math.E, -(1 * 1 + 1)));
+        assertThat(neuralNetwork.prediction(new double[]{1}))
+            .isEqualTo(new double[]{output, output});
+    }
 }
