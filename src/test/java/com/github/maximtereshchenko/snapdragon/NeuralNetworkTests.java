@@ -19,17 +19,19 @@ final class NeuralNetworkTests {
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
                         1,
-                        List.of(List.of(1.0))
+                        List.of(
+                            List.of(1.0)
+                        )
                     ),
                     List.of(),
                     new OutputLayerConfiguration(
-                        List.of(1.0)
+                        List.of(2.0)
                     )
                 ),
-                new double[]{1}
+                new double[]{3}
             )
         )
-            .isEqualTo(new double[]{sigmoid(1 * 1 + 1)});
+            .isEqualTo(new double[]{sigmoid(3 * 1 + 2)});
     }
 
     @Test
@@ -39,38 +41,47 @@ final class NeuralNetworkTests {
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
                         2,
-                        List.of(List.of(1.0), List.of(1.0))
+                        List.of(
+                            List.of(1.0),
+                            List.of(2.0)
+                        )
                     ),
                     List.of(),
                     new OutputLayerConfiguration(
-                        List.of(1.0)
+                        List.of(3.0)
                     )
                 ),
-                new double[]{1, 1}
+                new double[]{4, 5}
             )
         )
-            .isEqualTo(new double[]{sigmoid(1 * 1 + 1 * 1 + 1)});
+            .isEqualTo(new double[]{sigmoid(4 * 1 + 5 * 2 + 3)});
     }
 
     @Test
     void givenMultipleOutputs_whenPredict_thenExpectedPrediction() {
-        var output = sigmoid(1 * 1 + 1);
         assertThat(
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
                         1,
-                        List.of(List.of(1.0, 1.0))
+                        List.of(
+                            List.of(1.0, 2.0)
+                        )
                     ),
                     List.of(),
                     new OutputLayerConfiguration(
-                        List.of(1.0, 1.0)
+                        List.of(3.0, 4.0)
                     )
                 ),
-                new double[]{1}
+                new double[]{5}
             )
         )
-            .isEqualTo(new double[]{output, output});
+            .isEqualTo(
+                new double[]{
+                    sigmoid(5 * 1 + 3),
+                    sigmoid(5 * 2 + 4)
+                }
+            );
     }
 
     @Test
@@ -80,22 +91,26 @@ final class NeuralNetworkTests {
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
                         1,
-                        List.of(List.of(1.0))
+                        List.of(
+                            List.of(1.0)
+                        )
                     ),
                     List.of(
                         new HiddenLayerConfiguration(
-                            List.of(1.0),
-                            List.of(List.of(1.0))
+                            List.of(2.0),
+                            List.of(
+                                List.of(3.0)
+                            )
                         )
                     ),
                     new OutputLayerConfiguration(
-                        List.of(1.0)
+                        List.of(4.0)
                     )
                 ),
-                new double[]{1}
+                new double[]{5}
             )
         )
-            .isEqualTo(new double[]{sigmoid(sigmoid(1 * 1 + 1) * 1 + 1)});
+            .isEqualTo(new double[]{sigmoid(sigmoid(5 * 1 + 2) * 3 + 4)});
     }
 
     private double[] prediction(NeuralNetworkConfiguration configuration, double[] inputs) {
