@@ -113,6 +113,44 @@ final class NeuralNetworkTests {
             .isEqualTo(new double[]{sigmoid(sigmoid(5 * 1 + 2) * 3 + 4)});
     }
 
+    @Test
+    void givenMultipleNeuronHiddenLayer_whenPredict_thenExpectedPrediction() {
+        assertThat(
+            prediction(
+                new NeuralNetworkConfiguration(
+                    new InputLayerConfiguration(
+                        1,
+                        List.of(
+                            List.of(1.0, 2.0)
+                        )
+                    ),
+                    List.of(
+                        new HiddenLayerConfiguration(
+                            List.of(3.0, 4.0),
+                            List.of(
+                                List.of(5.0),
+                                List.of(6.0)
+                            )
+                        )
+                    ),
+                    new OutputLayerConfiguration(
+                        List.of(7.0)
+                    )
+                ),
+                new double[]{8}
+            )
+        )
+            .isEqualTo(
+                new double[]{
+                    sigmoid(
+                        sigmoid(8 * 1 + 3) * 5 +
+                            sigmoid(8 * 2 + 4) * 6 +
+                            7
+                    )
+                }
+            );
+    }
+
     private double[] prediction(NeuralNetworkConfiguration configuration, double[] inputs) {
         return new NeuralNetworkFactory()
             .neuralNetwork(configuration)
