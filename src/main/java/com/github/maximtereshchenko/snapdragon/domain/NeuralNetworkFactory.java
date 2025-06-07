@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.snapdragon.domain;
 
 import com.github.maximtereshchenko.snapdragon.api.NeuralNetworkConfiguration;
+
 import java.util.List;
 
 public final class NeuralNetworkFactory {
@@ -15,11 +16,11 @@ public final class NeuralNetworkFactory {
             configuration.hiddenLayerConfigurations()
                 .stream()
                 .map(hiddenLayerConfiguration ->
-                    new HiddenLayer(
-                        hiddenLayerConfiguration.biases(),
-                        hiddenLayerConfiguration.weights(),
-                        activationFunction
-                    )
+                         new HiddenLayer(
+                             hiddenLayerConfiguration.biases(),
+                             hiddenLayerConfiguration.weights(),
+                             activationFunction
+                         )
                 )
                 .toList(),
             new OutputLayer(

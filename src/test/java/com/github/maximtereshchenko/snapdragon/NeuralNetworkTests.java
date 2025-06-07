@@ -1,14 +1,15 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.maximtereshchenko.snapdragon.api.HiddenLayerConfiguration;
 import com.github.maximtereshchenko.snapdragon.api.InputLayerConfiguration;
 import com.github.maximtereshchenko.snapdragon.api.NeuralNetworkConfiguration;
 import com.github.maximtereshchenko.snapdragon.api.OutputLayerConfiguration;
 import com.github.maximtereshchenko.snapdragon.domain.NeuralNetworkFactory;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 final class NeuralNetworkTests {
 
@@ -190,10 +191,57 @@ final class NeuralNetworkTests {
             );
     }
 
+    @Test
+    void givenMultipleLayersMultipleNeurons_whenPredict_thenExpectedPrediction() {
+        var neuron5 = sigmoid(19 * 1 + 20 * 3 + 5);
+        var neuron6 = sigmoid(19 * 2 + 20 * 4 + 6);
+        var neuron11 = sigmoid(neuron5 * 7 + neuron6 * 9 + 11);
+        var neuron12 = sigmoid(neuron5 * 8 + neuron6 * 10 + 12);
+        assertThat(
+            prediction(
+                new NeuralNetworkConfiguration(
+                    new InputLayerConfiguration(
+                        2,
+                        List.of(
+                            List.of(1.0, 2.0),
+                            List.of(3.0, 4.0)
+                        )
+                    ),
+                    List.of(
+                        new HiddenLayerConfiguration(
+                            List.of(5.0, 6.0),
+                            List.of(
+                                List.of(7.0, 8.0),
+                                List.of(9.0, 10.0)
+                            )
+                        ),
+                        new HiddenLayerConfiguration(
+                            List.of(11.0, 12.0),
+                            List.of(
+                                List.of(13.0, 14.0),
+                                List.of(15.0, 16.0)
+                            )
+                        )
+                    ),
+                    new OutputLayerConfiguration(
+                        List.of(17.0, 18.0)
+                    )
+                ),
+                new double[]{19, 20}
+            )
+        )
+            .isEqualTo(
+                new double[]{
+                    sigmoid(neuron11 * 13 + neuron12 * 15 + 17),
+                    sigmoid(neuron11 * 14 + neuron12 * 16 + 18)
+                }
+            );
+    }
+
     private double[] prediction(NeuralNetworkConfiguration configuration, double[] inputs) {
         return new NeuralNetworkFactory()
-            .neuralNetwork(configuration)
-            .prediction(inputs);
+                   .neuralNetwork(configuration)
+                   .prediction(inputs);
     }
 
     private double sigmoid(double value) {

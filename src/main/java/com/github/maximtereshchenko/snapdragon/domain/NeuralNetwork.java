@@ -12,7 +12,7 @@ public final class NeuralNetwork {
 
     public double[] prediction(double[] inputs) {
         return outputs.stream()
-            .mapToDouble(output -> output.value(inputs))
-            .toArray();
+                   .mapToDouble(output -> output.value(inputs))
+                   .toArray();
     }
 }
