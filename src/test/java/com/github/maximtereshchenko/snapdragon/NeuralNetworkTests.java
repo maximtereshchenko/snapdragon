@@ -151,6 +151,45 @@ final class NeuralNetworkTests {
             );
     }
 
+    @Test
+    void givenMultipleHiddenLayers_whenPredict_thenExpectedPrediction() {
+        assertThat(
+            prediction(
+                new NeuralNetworkConfiguration(
+                    new InputLayerConfiguration(
+                        1,
+                        List.of(
+                            List.of(1.0)
+                        )
+                    ),
+                    List.of(
+                        new HiddenLayerConfiguration(
+                            List.of(2.0),
+                            List.of(
+                                List.of(3.0)
+                            )
+                        ),
+                        new HiddenLayerConfiguration(
+                            List.of(4.0),
+                            List.of(
+                                List.of(5.0)
+                            )
+                        )
+                    ),
+                    new OutputLayerConfiguration(
+                        List.of(6.0)
+                    )
+                ),
+                new double[]{7}
+            )
+        )
+            .isEqualTo(
+                new double[]{
+                    sigmoid(sigmoid(sigmoid(7 * 1 + 2) * 3 + 4) * 5 + 6)
+                }
+            );
+    }
+
     private double[] prediction(NeuralNetworkConfiguration configuration, double[] inputs) {
         return new NeuralNetworkFactory()
             .neuralNetwork(configuration)
