@@ -1,9 +1,6 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import com.github.maximtereshchenko.snapdragon.api.HiddenLayerConfiguration;
-import com.github.maximtereshchenko.snapdragon.api.InputLayerConfiguration;
-import com.github.maximtereshchenko.snapdragon.api.NeuralNetworkConfiguration;
-import com.github.maximtereshchenko.snapdragon.api.OutputLayerConfiguration;
+import com.github.maximtereshchenko.snapdragon.api.*;
 import com.github.maximtereshchenko.snapdragon.domain.NeuralNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -19,14 +16,17 @@ final class NeuralNetworkTests {
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        1,
                         List.of(
-                            List.of(1.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0)
+                            )
                         )
                     ),
                     List.of(),
                     new OutputLayerConfiguration(
-                        List.of(2.0)
+                        List.of(
+                            new OutputNeuronConfiguration(2)
+                        )
                     )
                 ),
                 new double[]{3}
@@ -41,15 +41,20 @@ final class NeuralNetworkTests {
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        2,
                         List.of(
-                            List.of(1.0),
-                            List.of(2.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0)
+                            ),
+                            new InputNeuronConfiguration(
+                                List.of(2.0)
+                            )
                         )
                     ),
                     List.of(),
                     new OutputLayerConfiguration(
-                        List.of(3.0)
+                        List.of(
+                            new OutputNeuronConfiguration(3)
+                        )
                     )
                 ),
                 new double[]{4, 5}
@@ -64,14 +69,18 @@ final class NeuralNetworkTests {
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        1,
                         List.of(
-                            List.of(1.0, 2.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0, 2.0)
+                            )
                         )
                     ),
                     List.of(),
                     new OutputLayerConfiguration(
-                        List.of(3.0, 4.0)
+                        List.of(
+                            new OutputNeuronConfiguration(3),
+                            new OutputNeuronConfiguration(4)
+                        )
                     )
                 ),
                 new double[]{5}
@@ -91,21 +100,26 @@ final class NeuralNetworkTests {
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        1,
                         List.of(
-                            List.of(1.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0)
+                            )
                         )
                     ),
                     List.of(
                         new HiddenLayerConfiguration(
-                            List.of(2.0),
                             List.of(
-                                List.of(3.0)
+                                new HiddenNeuronConfiguration(
+                                    2,
+                                    List.of(3.0)
+                                )
                             )
                         )
                     ),
                     new OutputLayerConfiguration(
-                        List.of(4.0)
+                        List.of(
+                            new OutputNeuronConfiguration(4)
+                        )
                     )
                 ),
                 new double[]{5}
@@ -120,22 +134,30 @@ final class NeuralNetworkTests {
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        1,
                         List.of(
-                            List.of(1.0, 2.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0, 2.0)
+                            )
                         )
                     ),
                     List.of(
                         new HiddenLayerConfiguration(
-                            List.of(3.0, 4.0),
                             List.of(
-                                List.of(5.0),
-                                List.of(6.0)
+                                new HiddenNeuronConfiguration(
+                                    3,
+                                    List.of(4.0)
+                                ),
+                                new HiddenNeuronConfiguration(
+                                    5,
+                                    List.of(6.0)
+                                )
                             )
                         )
                     ),
                     new OutputLayerConfiguration(
-                        List.of(7.0)
+                        List.of(
+                            new OutputNeuronConfiguration(7)
+                        )
                     )
                 ),
                 new double[]{8}
@@ -144,8 +166,8 @@ final class NeuralNetworkTests {
             .isEqualTo(
                 new double[]{
                     sigmoid(
-                        sigmoid(8 * 1 + 3) * 5 +
-                            sigmoid(8 * 2 + 4) * 6 +
+                        sigmoid(8 * 1 + 3) * 4 +
+                            sigmoid(8 * 2 + 5) * 6 +
                             7
                     )
                 }
@@ -158,27 +180,34 @@ final class NeuralNetworkTests {
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        1,
                         List.of(
-                            List.of(1.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0)
+                            )
                         )
                     ),
                     List.of(
                         new HiddenLayerConfiguration(
-                            List.of(2.0),
                             List.of(
-                                List.of(3.0)
+                                new HiddenNeuronConfiguration(
+                                    2,
+                                    List.of(3.0)
+                                )
                             )
                         ),
                         new HiddenLayerConfiguration(
-                            List.of(4.0),
                             List.of(
-                                List.of(5.0)
+                                new HiddenNeuronConfiguration(
+                                    4,
+                                    List.of(5.0)
+                                )
                             )
                         )
                     ),
                     new OutputLayerConfiguration(
-                        List.of(6.0)
+                        List.of(
+                            new OutputNeuronConfiguration(6)
+                        )
                     )
                 ),
                 new double[]{7}
@@ -194,37 +223,53 @@ final class NeuralNetworkTests {
     @Test
     void givenMultipleLayersMultipleNeurons_whenPredict_thenExpectedPrediction() {
         var neuron5 = sigmoid(19 * 1 + 20 * 3 + 5);
-        var neuron6 = sigmoid(19 * 2 + 20 * 4 + 6);
-        var neuron11 = sigmoid(neuron5 * 7 + neuron6 * 9 + 11);
-        var neuron12 = sigmoid(neuron5 * 8 + neuron6 * 10 + 12);
+        var neuron8 = sigmoid(19 * 2 + 20 * 4 + 8);
+        var neuron11 = sigmoid(neuron5 * 6 + neuron8 * 9 + 11);
+        var neuron14 = sigmoid(neuron5 * 7 + neuron8 * 10 + 14);
         assertThat(
             prediction(
                 new NeuralNetworkConfiguration(
                     new InputLayerConfiguration(
-                        2,
                         List.of(
-                            List.of(1.0, 2.0),
-                            List.of(3.0, 4.0)
+                            new InputNeuronConfiguration(
+                                List.of(1.0, 2.0)
+                            ),
+                            new InputNeuronConfiguration(
+                                List.of(3.0, 4.0)
+                            )
                         )
                     ),
                     List.of(
                         new HiddenLayerConfiguration(
-                            List.of(5.0, 6.0),
                             List.of(
-                                List.of(7.0, 8.0),
-                                List.of(9.0, 10.0)
+                                new HiddenNeuronConfiguration(
+                                    5,
+                                    List.of(6.0, 7.0)
+                                ),
+                                new HiddenNeuronConfiguration(
+                                    8,
+                                    List.of(9.0, 10.0)
+                                )
                             )
                         ),
                         new HiddenLayerConfiguration(
-                            List.of(11.0, 12.0),
                             List.of(
-                                List.of(13.0, 14.0),
-                                List.of(15.0, 16.0)
+                                new HiddenNeuronConfiguration(
+                                    11,
+                                    List.of(12.0, 13.0)
+                                ),
+                                new HiddenNeuronConfiguration(
+                                    14,
+                                    List.of(15.0, 16.0)
+                                )
                             )
                         )
                     ),
                     new OutputLayerConfiguration(
-                        List.of(17.0, 18.0)
+                        List.of(
+                            new OutputNeuronConfiguration(17),
+                            new OutputNeuronConfiguration(18)
+                        )
                     )
                 ),
                 new double[]{19, 20}
@@ -232,8 +277,8 @@ final class NeuralNetworkTests {
         )
             .isEqualTo(
                 new double[]{
-                    sigmoid(neuron11 * 13 + neuron12 * 15 + 17),
-                    sigmoid(neuron11 * 14 + neuron12 * 16 + 18)
+                    sigmoid(neuron11 * 13 + neuron14 * 15 + 17),
+                    sigmoid(neuron11 * 13 + neuron14 * 16 + 18)
                 }
             );
     }

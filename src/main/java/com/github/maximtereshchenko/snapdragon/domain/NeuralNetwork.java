@@ -4,15 +4,15 @@ import java.util.List;
 
 public final class NeuralNetwork {
 
-    private final List<StaticNeuron> outputs;
+    private final List<PredictingStaticNeuron> outputs;
 
-    NeuralNetwork(List<StaticNeuron> outputs) {
+    NeuralNetwork(List<PredictingStaticNeuron> outputs) {
         this.outputs = outputs;
     }
 
     public double[] prediction(double[] inputs) {
         return outputs.stream()
-                   .mapToDouble(output -> output.value(inputs))
+                   .mapToDouble(output -> output.prediction(inputs))
                    .toArray();
     }
 }

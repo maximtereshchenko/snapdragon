@@ -1,29 +1,19 @@
 package com.github.maximtereshchenko.snapdragon.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 
-final class NeuralNetworkSegment implements Connectable {
+final class NeuralNetworkSegment implements ConnectableSegment {
 
-    private final List<StaticNeuron> neurons;
-    private final List<List<Double>> weights;
+    private final List<IncompleteNeuron> neurons;
 
-    NeuralNetworkSegment(List<StaticNeuron> neurons, List<List<Double>> weights) {
+    NeuralNetworkSegment(List<IncompleteNeuron> neurons) {
         this.neurons = neurons;
-        this.weights = weights;
     }
 
     @Override
     public List<Connection> connections(int destinationIndex) {
-        var connections = new ArrayList<Connection>();
-        for (var i = 0; i < neurons.size(); i++) {
-            connections.add(
-                new Connection(
-                    neurons.get(i),
-                    weights.get(i).get(destinationIndex)
-                )
-            );
-        }
-        return connections;
+        return neurons.stream()
+                   .map(neuron -> neuron.connection(destinationIndex))
+                   .toList();
     }
 }

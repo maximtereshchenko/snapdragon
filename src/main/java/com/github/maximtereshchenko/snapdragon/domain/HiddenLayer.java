@@ -5,31 +5,20 @@ import java.util.List;
 
 final class HiddenLayer {
 
-    private final List<Double> biases;
-    private final List<List<Double>> weights;
-    private final ActivationFunction activationFunction;
+    private final List<HiddenLayerNeuron> neurons;
 
-    HiddenLayer(
-        List<Double> biases,
-        List<List<Double>> weights,
-        ActivationFunction activationFunction
-    ) {
-        this.biases = biases;
-        this.weights = weights;
-        this.activationFunction = activationFunction;
+    HiddenLayer(List<HiddenLayerNeuron> neurons) {
+        this.neurons = neurons;
     }
 
-    NeuralNetworkSegment neuralNetworkSegment(Connectable connectable) {
-        var neurons = new ArrayList<StaticNeuron>();
-        for (var i = 0; i < biases.size(); i++) {
-            neurons.add(
-                new StaticNeuron(
-                    connectable.connections(i),
-                    biases.get(i),
-                    activationFunction
-                )
+    NeuralNetworkSegment neuralNetworkSegment(ConnectableSegment connectable) {
+        var incompleteNeurons = new ArrayList<IncompleteNeuron>();
+        for (var i = 0; i < neurons.size(); i++) {
+            incompleteNeurons.add(
+                neurons.get(i)
+                    .incompleteNeuron(connectable.connections(i))
             );
         }
-        return new NeuralNetworkSegment(neurons, weights);
+        return new NeuralNetworkSegment(incompleteNeurons);
     }
 }

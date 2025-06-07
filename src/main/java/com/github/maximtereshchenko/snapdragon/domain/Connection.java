@@ -2,15 +2,15 @@ package com.github.maximtereshchenko.snapdragon.domain;
 
 final class Connection {
 
-    private final Neuron neuron;
+    private final PredictingNeuron neuron;
     private final double weight;
 
-    Connection(Neuron neuron, double weight) {
+    Connection(PredictingNeuron neuron, double weight) {
         this.neuron = neuron;
         this.weight = weight;
     }
 
     double value(double[] inputs) {
-        return neuron.value(inputs) * weight;
+        return neuron.prediction(inputs) * weight;
     }
 }

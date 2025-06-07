@@ -1,15 +1,22 @@
 package com.github.maximtereshchenko.snapdragon.domain;
 
-final class InputNeuron implements Neuron {
+import java.util.List;
+
+final class InputNeuron implements ConnectableNeuron {
 
     private final int index;
+    private final List<Double> weights;
 
-    InputNeuron(int index) {
+    InputNeuron(int index, List<Double> weights) {
         this.index = index;
+        this.weights = weights;
     }
 
     @Override
-    public double value(double[] inputs) {
-        return inputs[index];
+    public Connection connection(int destinationIndex) {
+        return new Connection(
+            new PredictingInputNeuron(index),
+            weights.get(destinationIndex)
+        );
     }
 }

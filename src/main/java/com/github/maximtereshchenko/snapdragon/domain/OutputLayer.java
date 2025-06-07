@@ -5,25 +5,20 @@ import java.util.List;
 
 final class OutputLayer {
 
-    private final List<Double> biases;
-    private final ActivationFunction activationFunction;
+    private final List<OutputLayerNeuron> neurons;
 
-    OutputLayer(List<Double> biases, ActivationFunction activationFunction) {
-        this.biases = biases;
-        this.activationFunction = activationFunction;
+    OutputLayer(List<OutputLayerNeuron> neurons) {
+        this.neurons = neurons;
     }
 
-    NeuralNetwork neuralNetwork(Connectable connectable) {
-        var neurons = new ArrayList<StaticNeuron>();
-        for (var i = 0; i < biases.size(); i++) {
-            neurons.add(
-                new StaticNeuron(
-                    connectable.connections(i),
-                    biases.get(i),
-                    activationFunction
-                )
+    NeuralNetwork neuralNetwork(ConnectableSegment connectable) {
+        var predictingStaticNeurons = new ArrayList<PredictingStaticNeuron>();
+        for (var i = 0; i < neurons.size(); i++) {
+            predictingStaticNeurons.add(
+                neurons.get(i)
+                    .predictingStaticNeuron(connectable.connections(i))
             );
         }
-        return new NeuralNetwork(neurons);
+        return new NeuralNetwork(predictingStaticNeurons);
     }
 }
