@@ -59,7 +59,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenSingleInputOutput_whenOutputs_thenExpectedPrediction() {
+    void givenSingleInputOutput_whenOutputs_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1)),
@@ -71,7 +71,19 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleInputs_whenOutputs_thenExpectedPrediction() {
+    void givenBatchedInputs_whenOutputs_thenExpectedOutputs() {
+        assertThat(
+            neuralNetwork(
+                List.of(Matrix.horizontalVector(1)),
+                List.of(Matrix.horizontalVector(2))
+            )
+                .outputs(Matrix.verticalVector(3, 4))
+        )
+            .isEqualTo(Matrix.verticalVector(sigmoid(3 * 1 + 2), sigmoid(4 * 1 + 2)));
+    }
+
+    @Test
+    void givenMultipleInputs_whenOutputs_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.verticalVector(1, 2)),
@@ -83,7 +95,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleOutputs_whenOutputs_thenExpectedPrediction() {
+    void givenMultipleOutputs_whenOutputs_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1, 2)),
@@ -95,7 +107,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenSingleNeuronHiddenLayer_whenOutputs_thenExpectedPrediction() {
+    void givenSingleNeuronHiddenLayer_whenOutputs_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -113,7 +125,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleNeuronHiddenLayer_whenOutputs_thenExpectedPrediction() {
+    void givenMultipleNeuronHiddenLayer_whenOutputs_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -139,7 +151,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleHiddenLayers_whenOutputs_thenExpectedPrediction() {
+    void givenMultipleHiddenLayers_whenOutputs_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -163,7 +175,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleLayersMultipleNeurons_whenOutputs_thenExpectedPrediction() {
+    void givenMultipleLayersMultipleNeurons_whenOutputs_thenExpectedOutputs() {
         var neuron13 = sigmoid(19 * 1 + 20 * 3 + 13);
         var neuron14 = sigmoid(19 * 2 + 20 * 4 + 14);
         var neuron15 = sigmoid(neuron13 * 5 + neuron14 * 7 + 15);

@@ -55,6 +55,14 @@ public final class Matrix {
         return Arrays.deepToString(values);
     }
 
+    public int rows() {
+        return values.length;
+    }
+
+    public int columns() {
+        return values[0].length;
+    }
+
     public Matrix product(Matrix matrix) {
         if (columns() != matrix.rows()) {
             throw new IllegalArgumentException();
@@ -69,7 +77,7 @@ public final class Matrix {
                 }
             }
         }
-        return new Matrix(product);
+        return Matrix.from(product);
     }
 
     public Matrix combined(Matrix matrix, DoubleBinaryOperator operator) {
@@ -90,15 +98,24 @@ public final class Matrix {
         for (var columnIndex = 0; columnIndex < columns(); columnIndex++) {
             transposed[columnIndex] = column(columnIndex);
         }
-        return new Matrix(transposed);
+        return Matrix.from(transposed);
     }
 
-    public int rows() {
-        return values.length;
-    }
-
-    public int columns() {
-        return values[0].length;
+    public Matrix broadcasted(int rows, int columns) {
+        if (
+            rows() != 1 && rows() != rows ||
+                columns() != 1 && columns() != columns
+        ) {
+            throw new IllegalArgumentException();
+        }
+        var broadcasted = new double[Math.max(rows(), rows)][Math.max(columns(), columns)];
+        for (var rowIndex = 0; rowIndex < broadcasted.length; rowIndex++) {
+            var row = broadcasted[rowIndex];
+            for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
+                row[columnIndex] = values[Math.min(rows() - 1, rowIndex)][Math.min(columns() - 1, columnIndex)];
+            }
+        }
+        return Matrix.from(broadcasted);
     }
 
     private Matrix applied(IndexedValueOperator operator) {
@@ -112,7 +129,7 @@ public final class Matrix {
                 );
             }
         }
-        return new Matrix(applied);
+        return Matrix.from(applied);
     }
 
     private double[] row(int index) {

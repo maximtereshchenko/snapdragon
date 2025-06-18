@@ -55,10 +55,17 @@ public final class NeuralNetwork {
         }
         var outputs = inputs;
         for (var i = 0; i < weights.size(); i++) {
+            var weightedSums = outputs.product(weights.get(i));
             outputs = activationFunction(i)
                           .apply(
-                              outputs.product(weights.get(i))
-                                  .combined(biases.get(i), Double::sum)
+                              weightedSums.combined(
+                                  biases.get(i)
+                                      .broadcasted(
+                                          weightedSums.rows(),
+                                          weightedSums.columns()
+                                      ),
+                                  Double::sum
+                              )
                           );
         }
         return outputs;
