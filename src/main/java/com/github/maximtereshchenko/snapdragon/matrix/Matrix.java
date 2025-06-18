@@ -26,6 +26,14 @@ public final class Matrix {
         return from(new double[][]{values});
     }
 
+    public static Matrix verticalVector(double... values) {
+        var matrix = new double[values.length][];
+        for (var i = 0; i < values.length; i++) {
+            matrix[i] = new double[]{values[i]};
+        }
+        return from(matrix);
+    }
+
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(values);
@@ -49,7 +57,17 @@ public final class Matrix {
         if (columns() != matrix.rows()) {
             throw new IllegalArgumentException();
         }
-        return new Matrix(new double[][]{{values[0][0] * matrix.values[0][0]}});
+        var product = new double[rows()][matrix.columns()];
+        for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {
+            for (var columnIndex = 0; columnIndex < matrix.columns(); columnIndex++) {
+                var row = row(rowIndex);
+                var column = matrix.column(columnIndex);
+                for (var i = 0; i < row.length; i++) {
+                    product[rowIndex][columnIndex] += row[i] * column[i];
+                }
+            }
+        }
+        return new Matrix(product);
     }
 
     private int rows() {
@@ -58,5 +76,17 @@ public final class Matrix {
 
     private int columns() {
         return values[0].length;
+    }
+
+    private double[] row(int index) {
+        return values[index];
+    }
+
+    private double[] column(int index) {
+        var column = new double[rows()];
+        for (var i = 0; i < rows(); i++) {
+            column[i] = values[i][index];
+        }
+        return column;
     }
 }

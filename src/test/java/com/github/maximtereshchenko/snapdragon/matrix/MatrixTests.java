@@ -20,16 +20,22 @@ final class MatrixTests {
     }
 
     @Test
+    void givenIncompatibleMatrices_whenProduct_thenIllegalArgumentExceptionThrown() {
+        var twoColumns = Matrix.horizontalVector(1, 2);
+        var oneRow = Matrix.horizontalVector(1);
+        assertThatThrownBy(() -> twoColumns.product(oneRow))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void givenSingleValueMatrices_whenProduct_thenValuesMultiplied() {
         assertThat(Matrix.horizontalVector(2).product(Matrix.horizontalVector(3)))
             .isEqualTo(Matrix.horizontalVector(6));
     }
 
     @Test
-    void givenIncompatibleMatrices_whenProduct_thenIllegalArgumentExceptionThrown() {
-        var twoColumns = Matrix.horizontalVector(1, 2);
-        var oneRow = Matrix.horizontalVector(1);
-        assertThatThrownBy(() -> twoColumns.product(oneRow))
-            .isInstanceOf(IllegalArgumentException.class);
+    void givenOneRowOneColumn_whenProduct_thenValuesMultiplied() {
+        assertThat(Matrix.horizontalVector(1, 2).product(Matrix.verticalVector(3, 4)))
+            .isEqualTo(Matrix.horizontalVector(1 * 3 + 2 * 4));
     }
 }
