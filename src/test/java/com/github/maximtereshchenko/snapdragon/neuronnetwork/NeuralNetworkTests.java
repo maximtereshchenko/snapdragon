@@ -1,7 +1,7 @@
-package com.github.maximtereshchenko.snapdragon;
+package com.github.maximtereshchenko.snapdragon.neuronnetwork;
 
-import com.github.maximtereshchenko.snapdragon.api.*;
-import com.github.maximtereshchenko.snapdragon.domain.NeuralNetworkFactory;
+import com.github.maximtereshchenko.snapdragon.neuronnetwork.api.*;
+import com.github.maximtereshchenko.snapdragon.neuronnetwork.domain.NeuralNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

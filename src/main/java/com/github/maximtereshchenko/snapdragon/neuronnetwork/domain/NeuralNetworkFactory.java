@@ -1,9 +1,9 @@
-package com.github.maximtereshchenko.snapdragon.domain;
+package com.github.maximtereshchenko.snapdragon.neuronnetwork.domain;
 
-import com.github.maximtereshchenko.snapdragon.api.HiddenLayerConfiguration;
-import com.github.maximtereshchenko.snapdragon.api.InputLayerConfiguration;
-import com.github.maximtereshchenko.snapdragon.api.NeuralNetworkConfiguration;
-import com.github.maximtereshchenko.snapdragon.api.OutputLayerConfiguration;
+import com.github.maximtereshchenko.snapdragon.neuronnetwork.api.HiddenLayerConfiguration;
+import com.github.maximtereshchenko.snapdragon.neuronnetwork.api.InputLayerConfiguration;
+import com.github.maximtereshchenko.snapdragon.neuronnetwork.api.NeuralNetworkConfiguration;
+import com.github.maximtereshchenko.snapdragon.neuronnetwork.api.OutputLayerConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;

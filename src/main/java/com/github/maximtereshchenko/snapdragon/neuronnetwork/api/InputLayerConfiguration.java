@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.snapdragon.api;
+package com.github.maximtereshchenko.snapdragon.neuronnetwork.api;
 
 import java.util.List;
 
