@@ -85,6 +85,14 @@ public final class Matrix {
         return applied((row, column, value) -> operator.applyAsDouble(value));
     }
 
+    public Matrix transposed() {
+        var transposed = new double[columns()][rows()];
+        for (var columnIndex = 0; columnIndex < columns(); columnIndex++) {
+            transposed[columnIndex] = column(columnIndex);
+        }
+        return new Matrix(transposed);
+    }
+
     private Matrix applied(IndexedValueOperator operator) {
         var applied = new double[rows()][columns()];
         for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {
