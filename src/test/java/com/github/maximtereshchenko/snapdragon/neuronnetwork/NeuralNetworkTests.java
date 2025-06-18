@@ -1,7 +1,6 @@
 package com.github.maximtereshchenko.snapdragon.neuronnetwork;
 
-import com.github.maximtereshchenko.snapdragon.neuronnetwork.api.*;
-import com.github.maximtereshchenko.snapdragon.neuronnetwork.domain.NeuralNetworkFactory;
+import com.github.maximtereshchenko.snapdragon.matrix.Matrix;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -13,280 +12,140 @@ final class NeuralNetworkTests {
     @Test
     void givenSingleInputOutput_whenPredict_thenExpectedPrediction() {
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0)
-                            )
-                        )
-                    ),
-                    List.of(),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(2)
-                        )
-                    )
-                ),
-                new double[]{3}
+            neuralNetwork(
+                List.of(Matrix.horizontalVector(1)),
+                List.of(Matrix.horizontalVector(2))
             )
+                .outputs(Matrix.horizontalVector(3))
         )
-            .isEqualTo(new double[]{sigmoid(3 * 1 + 2)});
+            .isEqualTo(Matrix.horizontalVector(sigmoid(3 * 1 + 2)));
     }
 
     @Test
     void givenMultipleInputs_whenPredict_thenExpectedPrediction() {
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0)
-                            ),
-                            new InputNeuronConfiguration(
-                                List.of(2.0)
-                            )
-                        )
-                    ),
-                    List.of(),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(3)
-                        )
-                    )
-                ),
-                new double[]{4, 5}
+            neuralNetwork(
+                List.of(Matrix.verticalVector(1, 2)),
+                List.of(Matrix.horizontalVector(3))
             )
+                .outputs(Matrix.horizontalVector(4, 5))
         )
-            .isEqualTo(new double[]{sigmoid(4 * 1 + 5 * 2 + 3)});
+            .isEqualTo(Matrix.horizontalVector(sigmoid(4 * 1 + 5 * 2 + 3)));
     }
 
     @Test
     void givenMultipleOutputs_whenPredict_thenExpectedPrediction() {
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0, 2.0)
-                            )
-                        )
-                    ),
-                    List.of(),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(3),
-                            new OutputNeuronConfiguration(4)
-                        )
-                    )
-                ),
-                new double[]{5}
+            neuralNetwork(
+                List.of(Matrix.horizontalVector(1, 2)),
+                List.of(Matrix.horizontalVector(3, 4))
             )
+                .outputs(Matrix.horizontalVector(5))
         )
-            .isEqualTo(
-                new double[]{
-                    sigmoid(5 * 1 + 3),
-                    sigmoid(5 * 2 + 4)
-                }
-            );
+            .isEqualTo(Matrix.horizontalVector(sigmoid(5 * 1 + 3), sigmoid(5 * 2 + 4)));
     }
 
     @Test
     void givenSingleNeuronHiddenLayer_whenPredict_thenExpectedPrediction() {
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0)
-                            )
-                        )
-                    ),
-                    List.of(
-                        new HiddenLayerConfiguration(
-                            List.of(
-                                new HiddenNeuronConfiguration(
-                                    2,
-                                    List.of(3.0)
-                                )
-                            )
-                        )
-                    ),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(4)
-                        )
-                    )
+            neuralNetwork(
+                List.of(
+                    Matrix.horizontalVector(1),
+                    Matrix.horizontalVector(2)
                 ),
-                new double[]{5}
+                List.of(
+                    Matrix.horizontalVector(3),
+                    Matrix.horizontalVector(4)
+                )
             )
+                .outputs(Matrix.horizontalVector(5))
         )
-            .isEqualTo(new double[]{sigmoid(sigmoid(5 * 1 + 2) * 3 + 4)});
+            .isEqualTo(Matrix.horizontalVector(sigmoid(sigmoid(5 * 1 + 3) * 2 + 4)));
     }
 
     @Test
     void givenMultipleNeuronHiddenLayer_whenPredict_thenExpectedPrediction() {
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0, 2.0)
-                            )
-                        )
-                    ),
-                    List.of(
-                        new HiddenLayerConfiguration(
-                            List.of(
-                                new HiddenNeuronConfiguration(
-                                    3,
-                                    List.of(4.0)
-                                ),
-                                new HiddenNeuronConfiguration(
-                                    5,
-                                    List.of(6.0)
-                                )
-                            )
-                        )
-                    ),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(7)
-                        )
-                    )
+            neuralNetwork(
+                List.of(
+                    Matrix.horizontalVector(1, 2),
+                    Matrix.verticalVector(3, 4)
                 ),
-                new double[]{8}
+                List.of(
+                    Matrix.horizontalVector(5, 6),
+                    Matrix.horizontalVector(7)
+                )
             )
+                .outputs(Matrix.horizontalVector(8))
         )
             .isEqualTo(
-                new double[]{
+                Matrix.horizontalVector(
                     sigmoid(
-                        sigmoid(8 * 1 + 3) * 4 +
-                            sigmoid(8 * 2 + 5) * 6 +
+                        sigmoid(8 * 1 + 5) * 3 +
+                            sigmoid(8 * 2 + 6) * 4 +
                             7
                     )
-                }
+                )
             );
     }
 
     @Test
     void givenMultipleHiddenLayers_whenPredict_thenExpectedPrediction() {
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0)
-                            )
-                        )
-                    ),
-                    List.of(
-                        new HiddenLayerConfiguration(
-                            List.of(
-                                new HiddenNeuronConfiguration(
-                                    2,
-                                    List.of(3.0)
-                                )
-                            )
-                        ),
-                        new HiddenLayerConfiguration(
-                            List.of(
-                                new HiddenNeuronConfiguration(
-                                    4,
-                                    List.of(5.0)
-                                )
-                            )
-                        )
-                    ),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(6)
-                        )
-                    )
+            neuralNetwork(
+                List.of(
+                    Matrix.horizontalVector(1),
+                    Matrix.horizontalVector(2),
+                    Matrix.horizontalVector(3)
                 ),
-                new double[]{7}
+                List.of(
+                    Matrix.horizontalVector(4),
+                    Matrix.horizontalVector(5),
+                    Matrix.horizontalVector(6)
+                )
             )
+                .outputs(Matrix.horizontalVector(7))
         )
             .isEqualTo(
-                new double[]{
-                    sigmoid(sigmoid(sigmoid(7 * 1 + 2) * 3 + 4) * 5 + 6)
-                }
+                Matrix.horizontalVector(
+                    sigmoid(sigmoid(sigmoid(7 * 1 + 4) * 2 + 5) * 3 + 6)
+                )
             );
     }
 
     @Test
     void givenMultipleLayersMultipleNeurons_whenPredict_thenExpectedPrediction() {
-        var neuron5 = sigmoid(19 * 1 + 20 * 3 + 5);
-        var neuron8 = sigmoid(19 * 2 + 20 * 4 + 8);
-        var neuron11 = sigmoid(neuron5 * 6 + neuron8 * 9 + 11);
-        var neuron14 = sigmoid(neuron5 * 7 + neuron8 * 10 + 14);
+        var neuron13 = sigmoid(19 * 1 + 20 * 3 + 13);
+        var neuron14 = sigmoid(19 * 2 + 20 * 4 + 14);
+        var neuron15 = sigmoid(neuron13 * 5 + neuron14 * 7 + 15);
+        var neuron16 = sigmoid(neuron13 * 6 + neuron14 * 8 + 16);
         assertThat(
-            prediction(
-                new NeuralNetworkConfiguration(
-                    new InputLayerConfiguration(
-                        List.of(
-                            new InputNeuronConfiguration(
-                                List.of(1.0, 2.0)
-                            ),
-                            new InputNeuronConfiguration(
-                                List.of(3.0, 4.0)
-                            )
-                        )
-                    ),
-                    List.of(
-                        new HiddenLayerConfiguration(
-                            List.of(
-                                new HiddenNeuronConfiguration(
-                                    5,
-                                    List.of(6.0, 7.0)
-                                ),
-                                new HiddenNeuronConfiguration(
-                                    8,
-                                    List.of(9.0, 10.0)
-                                )
-                            )
-                        ),
-                        new HiddenLayerConfiguration(
-                            List.of(
-                                new HiddenNeuronConfiguration(
-                                    11,
-                                    List.of(12.0, 13.0)
-                                ),
-                                new HiddenNeuronConfiguration(
-                                    14,
-                                    List.of(15.0, 16.0)
-                                )
-                            )
-                        )
-                    ),
-                    new OutputLayerConfiguration(
-                        List.of(
-                            new OutputNeuronConfiguration(17),
-                            new OutputNeuronConfiguration(18)
-                        )
-                    )
+            neuralNetwork(
+                List.of(
+                    Matrix.from(new double[][]{{1, 2}, {3, 4}}),
+                    Matrix.from(new double[][]{{5, 6}, {7, 8}}),
+                    Matrix.from(new double[][]{{9, 10}, {11, 12}})
                 ),
-                new double[]{19, 20}
+                List.of(
+                    Matrix.horizontalVector(13, 14),
+                    Matrix.horizontalVector(15, 16),
+                    Matrix.horizontalVector(17, 18)
+                )
             )
+                .outputs(
+                    Matrix.horizontalVector(19, 20)
+                )
         )
             .isEqualTo(
-                new double[]{
-                    sigmoid(neuron11 * 13 + neuron14 * 15 + 17),
-                    sigmoid(neuron11 * 13 + neuron14 * 16 + 18)
-                }
+                Matrix.horizontalVector(
+                    sigmoid(neuron15 * 9 + neuron16 * 11 + 17),
+                    sigmoid(neuron15 * 10 + neuron16 * 12 + 18)
+                )
             );
     }
 
-    private double[] prediction(NeuralNetworkConfiguration configuration, double[] inputs) {
-        return new NeuralNetworkFactory()
-                   .neuralNetwork(configuration)
-                   .prediction(inputs);
+    private NeuralNetwork neuralNetwork(List<Matrix> weights, List<Matrix> biases) {
+        return new NeuralNetwork(weights, biases, new Sigmoid(), new Sigmoid());
     }
 
     private double sigmoid(double value) {
