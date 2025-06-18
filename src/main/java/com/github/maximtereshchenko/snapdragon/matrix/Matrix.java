@@ -74,7 +74,14 @@ public final class Matrix {
         if (rows() != matrix.rows() || columns() != matrix.columns()) {
             throw new IllegalArgumentException();
         }
-        return this;
+        var hadamardProduct = new double[rows()][columns()];
+        for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {
+            for (var columnIndex = 0; columnIndex < columns(); columnIndex++) {
+                hadamardProduct[rowIndex][columnIndex] =
+                    values[rowIndex][columnIndex] * matrix.values[rowIndex][columnIndex];
+            }
+        }
+        return new Matrix(hadamardProduct);
     }
 
     private int rows() {
