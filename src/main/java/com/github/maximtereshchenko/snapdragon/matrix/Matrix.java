@@ -14,6 +14,11 @@ public final class Matrix {
         if (matrix.length == 0) {
             throw new IllegalArgumentException();
         }
+        for (var i = 1; i < matrix.length; i++) {
+            if (matrix[i - 1].length != matrix[i].length) {
+                throw new IllegalArgumentException();
+            }
+        }
         return new Matrix(matrix);
     }
 

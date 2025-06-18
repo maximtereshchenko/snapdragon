@@ -14,6 +14,12 @@ final class MatrixTests {
     }
 
     @Test
+    void givenVariableLengthMatrix_whenCreateMatrix_thenIllegalArgumentExceptionThrown() {
+        assertThatThrownBy(() -> Matrix.from(new double[][]{{1}, {2, 3}}))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void givenSingleValueMatrices_whenProduct_thenValuesMultiplied() {
         assertThat(Matrix.horizontalVector(2).product(Matrix.horizontalVector(3)))
             .isEqualTo(Matrix.horizontalVector(6));
