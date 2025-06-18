@@ -70,6 +70,13 @@ public final class Matrix {
         return new Matrix(product);
     }
 
+    Matrix hadamardProduct(Matrix matrix) {
+        if (rows() != matrix.rows() || columns() != matrix.columns()) {
+            throw new IllegalArgumentException();
+        }
+        return this;
+    }
+
     private int rows() {
         return values.length;
     }

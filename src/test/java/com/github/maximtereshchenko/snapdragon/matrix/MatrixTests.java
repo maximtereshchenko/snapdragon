@@ -28,6 +28,22 @@ final class MatrixTests {
     }
 
     @Test
+    void givenDifferentHeight_whenHadamardProduct_thenIllegalArgumentExceptionThrown() {
+        var oneRow = Matrix.horizontalVector(1);
+        var twoRows = Matrix.verticalVector(1, 2);
+        assertThatThrownBy(() -> oneRow.hadamardProduct(twoRows))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenDifferentWidth_whenHadamardProduct_thenIllegalArgumentExceptionThrown() {
+        var oneColumn = Matrix.verticalVector(1);
+        var twoColumns = Matrix.horizontalVector(1, 2);
+        assertThatThrownBy(() -> oneColumn.hadamardProduct(twoColumns))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void givenSingleValueMatrices_whenProduct_thenValuesMultiplied() {
         assertThat(
             Matrix.horizontalVector(2)
