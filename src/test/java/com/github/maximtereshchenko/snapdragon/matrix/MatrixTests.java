@@ -29,13 +29,28 @@ final class MatrixTests {
 
     @Test
     void givenSingleValueMatrices_whenProduct_thenValuesMultiplied() {
-        assertThat(Matrix.horizontalVector(2).product(Matrix.horizontalVector(3)))
+        assertThat(
+            Matrix.horizontalVector(2)
+                .product(Matrix.horizontalVector(3))
+        )
             .isEqualTo(Matrix.horizontalVector(6));
     }
 
     @Test
     void givenOneRowOneColumn_whenProduct_thenValuesMultiplied() {
-        assertThat(Matrix.horizontalVector(1, 2).product(Matrix.verticalVector(3, 4)))
+        assertThat(
+            Matrix.horizontalVector(1, 2)
+                .product(Matrix.verticalVector(3, 4))
+        )
             .isEqualTo(Matrix.horizontalVector(1 * 3 + 2 * 4));
+    }
+
+    @Test
+    void givenTwoRowsOneColumn_whenProduct_thenValuesMultiplied() {
+        assertThat(
+            Matrix.verticalVector(1, 2)
+                .product(Matrix.verticalVector(3))
+        )
+            .isEqualTo(Matrix.from(new double[][]{{1 * 3}, {2 * 3}}));
     }
 }
