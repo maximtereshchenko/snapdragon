@@ -53,4 +53,32 @@ final class MatrixTests {
         )
             .isEqualTo(Matrix.from(new double[][]{{1 * 3}, {2 * 3}}));
     }
+
+    @Test
+    void givenTwoRowsTwoColumns_whenProduct_thenValuesMultiplied() {
+        assertThat(
+            Matrix.from(
+                    new double[][]{
+                        {1, 2},
+                        {3, 4}
+                    }
+                )
+                .product(
+                    Matrix.from(
+                        new double[][]{
+                            {5, 6},
+                            {7, 8}
+                        }
+                    )
+                )
+        )
+            .isEqualTo(
+                Matrix.from(
+                    new double[][]{
+                        {1 * 5 + 2 * 7, 1 * 6 + 2 * 8},
+                        {3 * 5 + 4 * 7, 3 * 6 + 4 * 8}
+                    }
+                )
+            );
+    }
 }
