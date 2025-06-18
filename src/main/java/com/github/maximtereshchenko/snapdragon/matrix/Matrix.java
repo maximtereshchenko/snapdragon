@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.snapdragon.matrix;
 
 import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
 
 public final class Matrix {
 
@@ -70,15 +71,17 @@ public final class Matrix {
         return new Matrix(product);
     }
 
-    Matrix hadamardProduct(Matrix matrix) {
+    Matrix combined(Matrix matrix, DoubleBinaryOperator operator) {
         if (rows() != matrix.rows() || columns() != matrix.columns()) {
             throw new IllegalArgumentException();
         }
         var hadamardProduct = new double[rows()][columns()];
         for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {
             for (var columnIndex = 0; columnIndex < columns(); columnIndex++) {
-                hadamardProduct[rowIndex][columnIndex] =
-                    values[rowIndex][columnIndex] * matrix.values[rowIndex][columnIndex];
+                hadamardProduct[rowIndex][columnIndex] = operator.applyAsDouble(
+                    values[rowIndex][columnIndex],
+                    matrix.values[rowIndex][columnIndex]
+                );
             }
         }
         return new Matrix(hadamardProduct);
