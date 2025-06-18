@@ -11,7 +11,7 @@ public final class NeuralNetwork {
     private final ActivationFunction hiddenLayerActivationFunction;
     private final ActivationFunction outputLayerActivationFunction;
 
-    public NeuralNetwork(
+    private NeuralNetwork(
         List<Matrix> weights,
         List<Matrix> biases,
         ActivationFunction hiddenLayerActivationFunction,
@@ -23,7 +23,36 @@ public final class NeuralNetwork {
         this.outputLayerActivationFunction = outputLayerActivationFunction;
     }
 
+    public static NeuralNetwork from(
+        List<Matrix> weights,
+        List<Matrix> biases,
+        ActivationFunction hiddenLayerActivationFunction,
+        ActivationFunction outputLayerActivationFunction
+    ) {
+        if (weights.isEmpty() || weights.size() != biases.size()) {
+            throw new IllegalArgumentException();
+        }
+        for (var i = 0; i < weights.size(); i++) {
+            var weightMatrix = weights.get(i);
+            if (
+                weightMatrix.columns() != biases.get(i).columns() ||
+                    i > 0 && weightMatrix.rows() != biases.get(i - 1).columns()
+            ) {
+                throw new IllegalArgumentException();
+            }
+        }
+        return new NeuralNetwork(
+            weights,
+            biases,
+            hiddenLayerActivationFunction,
+            outputLayerActivationFunction
+        );
+    }
+
     public Matrix outputs(Matrix inputs) {
+        if (weights.getFirst().rows() != inputs.columns()) {
+            throw new IllegalArgumentException();
+        }
         var outputs = inputs;
         for (var i = 0; i < weights.size(); i++) {
             outputs = activationFunction(i)

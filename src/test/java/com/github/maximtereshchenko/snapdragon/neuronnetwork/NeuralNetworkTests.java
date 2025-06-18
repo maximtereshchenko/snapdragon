@@ -6,11 +6,60 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 final class NeuralNetworkTests {
 
     @Test
-    void givenSingleInputOutput_whenPredict_thenExpectedPrediction() {
+    void givenNoWeightsBiases_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
+        var empty = List.<Matrix>of();
+        assertThatThrownBy(() -> neuralNetwork(empty, empty))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenDifferentSizeWeightsAndBiases_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
+        var weights = List.<Matrix>of();
+        var biases = List.of(Matrix.horizontalVector(1));
+        assertThatThrownBy(() -> neuralNetwork(weights, biases))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenDifferentWeightColumnsBiasesColumns_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
+        var twoWeights = List.of(Matrix.horizontalVector(1, 2));
+        var oneBias = List.of(Matrix.horizontalVector(1));
+        assertThatThrownBy(() -> neuralNetwork(twoWeights, oneBias))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenDifferentWeightRowsBiasesColumns_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
+        var oneWeightOutputLayer = List.of(
+            Matrix.horizontalVector(1, 2),
+            Matrix.horizontalVector(1)
+        );
+        var oneBiasOutputLayer = List.of(
+            Matrix.horizontalVector(1, 2),
+            Matrix.horizontalVector(1)
+        );
+        assertThatThrownBy(() -> neuralNetwork(oneWeightOutputLayer, oneBiasOutputLayer))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenDifferentSizeInputs_whenOutputs_thenIllegalArgumentExceptionThrown() {
+        var neuralNetwork = neuralNetwork(
+            List.of(Matrix.horizontalVector(1)),
+            List.of(Matrix.horizontalVector(1))
+        );
+        var tooManyInputs = Matrix.horizontalVector(1, 2);
+        assertThatThrownBy(() -> neuralNetwork.outputs(tooManyInputs))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void givenSingleInputOutput_whenOutputs_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1)),
@@ -22,7 +71,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleInputs_whenPredict_thenExpectedPrediction() {
+    void givenMultipleInputs_whenOutputs_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.verticalVector(1, 2)),
@@ -34,7 +83,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleOutputs_whenPredict_thenExpectedPrediction() {
+    void givenMultipleOutputs_whenOutputs_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1, 2)),
@@ -46,7 +95,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenSingleNeuronHiddenLayer_whenPredict_thenExpectedPrediction() {
+    void givenSingleNeuronHiddenLayer_whenOutputs_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -64,7 +113,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleNeuronHiddenLayer_whenPredict_thenExpectedPrediction() {
+    void givenMultipleNeuronHiddenLayer_whenOutputs_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -90,7 +139,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleHiddenLayers_whenPredict_thenExpectedPrediction() {
+    void givenMultipleHiddenLayers_whenOutputs_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -114,7 +163,7 @@ final class NeuralNetworkTests {
     }
 
     @Test
-    void givenMultipleLayersMultipleNeurons_whenPredict_thenExpectedPrediction() {
+    void givenMultipleLayersMultipleNeurons_whenOutputs_thenExpectedPrediction() {
         var neuron13 = sigmoid(19 * 1 + 20 * 3 + 13);
         var neuron14 = sigmoid(19 * 2 + 20 * 4 + 14);
         var neuron15 = sigmoid(neuron13 * 5 + neuron14 * 7 + 15);
@@ -145,7 +194,7 @@ final class NeuralNetworkTests {
     }
 
     private NeuralNetwork neuralNetwork(List<Matrix> weights, List<Matrix> biases) {
-        return new NeuralNetwork(weights, biases, new Sigmoid(), new Sigmoid());
+        return NeuralNetwork.from(weights, biases, new Sigmoid(), new Sigmoid());
     }
 
     private double sigmoid(double value) {

@@ -93,6 +93,14 @@ public final class Matrix {
         return new Matrix(transposed);
     }
 
+    public int rows() {
+        return values.length;
+    }
+
+    public int columns() {
+        return values[0].length;
+    }
+
     private Matrix applied(IndexedValueOperator operator) {
         var applied = new double[rows()][columns()];
         for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {
@@ -105,14 +113,6 @@ public final class Matrix {
             }
         }
         return new Matrix(applied);
-    }
-
-    private int rows() {
-        return values.length;
-    }
-
-    private int columns() {
-        return values[0].length;
     }
 
     private double[] row(int index) {
