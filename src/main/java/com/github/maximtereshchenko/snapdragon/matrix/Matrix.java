@@ -17,6 +17,10 @@ public final class Matrix {
         return new Matrix(matrix);
     }
 
+    public static Matrix horizontalVector(double... values) {
+        return from(new double[][]{values});
+    }
+
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(values);
@@ -34,5 +38,9 @@ public final class Matrix {
     @Override
     public String toString() {
         return Arrays.deepToString(values);
+    }
+
+    public Matrix product(Matrix matrix) {
+        return new Matrix(new double[][]{{values[0][0] * matrix.values[0][0]}});
     }
 }
