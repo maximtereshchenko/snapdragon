@@ -41,6 +41,17 @@ public final class Matrix {
     }
 
     public Matrix product(Matrix matrix) {
+        if (columns() != matrix.rows()) {
+            throw new IllegalArgumentException();
+        }
         return new Matrix(new double[][]{{values[0][0] * matrix.values[0][0]}});
+    }
+
+    private int rows() {
+        return values.length;
+    }
+
+    private int columns() {
+        return values[0].length;
     }
 }

@@ -18,4 +18,12 @@ final class MatrixTests {
         assertThat(Matrix.horizontalVector(2).product(Matrix.horizontalVector(3)))
             .isEqualTo(Matrix.horizontalVector(6));
     }
+
+    @Test
+    void givenIncompatibleMatrices_whenProduct_thenIllegalArgumentExceptionThrown() {
+        var twoColumns = Matrix.horizontalVector(1, 2);
+        var oneRow = Matrix.horizontalVector(1);
+        assertThatThrownBy(() -> twoColumns.product(oneRow))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }
