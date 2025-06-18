@@ -2,6 +2,7 @@ package com.github.maximtereshchenko.snapdragon.matrix;
 
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 public final class Matrix {
 
@@ -71,20 +72,31 @@ public final class Matrix {
         return new Matrix(product);
     }
 
-    Matrix combined(Matrix matrix, DoubleBinaryOperator operator) {
+    public Matrix combined(Matrix matrix, DoubleBinaryOperator operator) {
         if (rows() != matrix.rows() || columns() != matrix.columns()) {
             throw new IllegalArgumentException();
         }
-        var hadamardProduct = new double[rows()][columns()];
+        return applied((row, column, value) ->
+                           operator.applyAsDouble(value, matrix.values[row][column])
+        );
+    }
+
+    public Matrix applied(DoubleUnaryOperator operator) {
+        return applied((row, column, value) -> operator.applyAsDouble(value));
+    }
+
+    private Matrix applied(IndexedValueOperator operator) {
+        var applied = new double[rows()][columns()];
         for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {
             for (var columnIndex = 0; columnIndex < columns(); columnIndex++) {
-                hadamardProduct[rowIndex][columnIndex] = operator.applyAsDouble(
-                    values[rowIndex][columnIndex],
-                    matrix.values[rowIndex][columnIndex]
+                applied[rowIndex][columnIndex] = operator.apply(
+                    rowIndex,
+                    columnIndex,
+                    values[rowIndex][columnIndex]
                 );
             }
         }
-        return new Matrix(hadamardProduct);
+        return new Matrix(applied);
     }
 
     private int rows() {
@@ -105,5 +117,11 @@ public final class Matrix {
             column[i] = values[i][index];
         }
         return column;
+    }
+
+    @FunctionalInterface
+    private interface IndexedValueOperator {
+
+        double apply(int row, int column, double value);
     }
 }

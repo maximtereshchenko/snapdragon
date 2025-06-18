@@ -153,4 +153,25 @@ final class MatrixTests {
                 )
             );
     }
+
+    @Test
+    void givenFunction_whenApplied_thenFunctionAppliedToEachValue() {
+        assertThat(
+            Matrix.from(
+                    new double[][]{
+                        {1, 2},
+                        {3, 4}
+                    }
+                )
+                .applied(value -> value + 1)
+        )
+            .isEqualTo(
+                Matrix.from(
+                    new double[][]{
+                        {2, 3},
+                        {4, 5}
+                    }
+                )
+            );
+    }
 }
