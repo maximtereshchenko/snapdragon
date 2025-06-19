@@ -6,5 +6,5 @@ public interface ActivationFunction {
 
     Matrix apply(Matrix matrix);
 
-    Matrix derivative(Matrix outputs);
+    Matrix derivative(Matrix matrix);
 }

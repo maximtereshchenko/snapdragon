@@ -10,7 +10,7 @@ public record Sigmoid() implements ActivationFunction {
     }
 
     @Override
-    public Matrix derivative(Matrix outputs) {
-        return outputs.applied(value -> value * (1 - value));
+    public Matrix derivative(Matrix matrix) {
+        return matrix.applied(value -> value * (1 - value));
     }
 }

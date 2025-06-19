@@ -62,32 +62,50 @@ public final class NeuralNetwork {
         double learningRate
     ) {
         var outputs = outputs(inputs);
-        var lastOutputs = outputs.getLast();
-        var lastDeltas = lossFunction.derivative(lastOutputs, labels)
-                             .combined(
-                                 outputLayerActivationFunction.derivative(lastOutputs),
-                                 (a, b) -> a * b
-                             );
-        var firstOutputs = outputs.getFirst();
-        var weightGradient = firstOutputs.transposed()
-                                 .product(lastDeltas)
-                                 .applied(value -> value / inputs.rows());
-        var biasGradient = lastDeltas.applied(value -> value / inputs.rows());
+        var deltas = new Matrix[biases.size()];
+        deltas[deltas.length - 1] = lossFunction.derivative(outputs.getLast(), labels)
+                                        .combined(
+                                            outputLayerActivationFunction.derivative(outputs.getLast()),
+                                            (a, b) -> a * b
+                                        );
+        for (var i = biases.size() - 2; i >= 0; i--) {
+            deltas[i] = deltas[i + 1].product(
+                    weights.get(i + 1)
+                        .transposed()
+                )
+                            .combined(
+                                hiddenLayerActivationFunction.derivative(outputs.get(i + 1)),
+                                (a, b) -> a * b
+                            );
+        }
+        var adjustedWeights = new ArrayList<Matrix>();
+        for (var i = 0; i < weights.size(); i++) {
+            adjustedWeights.add(
+                weights.get(i)
+                    .combined(
+                        outputs.get(i)
+                            .transposed()
+                            .product(deltas[i])
+                            .applied(value -> value / inputs.rows())
+                            .applied(value -> learningRate * value),
+                        (a, b) -> a - b
+                    )
+            );
+        }
+        var adjustedBiases = new ArrayList<Matrix>();
+        for (var i = 0; i < biases.size(); i++) {
+            adjustedBiases.add(
+                biases.get(i)
+                    .combined(
+                        deltas[i].applied(value -> value / inputs.rows())
+                            .applied(value -> learningRate * value),
+                        (a, b) -> a - b
+                    )
+            );
+        }
         return NeuralNetwork.from(
-            List.of(
-                weights.getFirst()
-                    .combined(
-                        weightGradient.applied(value -> value * learningRate),
-                        (a, b) -> a - b
-                    )
-            ),
-            List.of(
-                biases.getFirst()
-                    .combined(
-                        biasGradient.applied(value -> value * learningRate),
-                        (a, b) -> a - b
-                    )
-            ),
+            adjustedWeights,
+            adjustedBiases,
             hiddenLayerActivationFunction,
             outputLayerActivationFunction
         );
