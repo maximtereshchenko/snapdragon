@@ -2,9 +2,7 @@ package com.github.maximtereshchenko.snapdragon.neuronnetwork;
 
 import com.github.maximtereshchenko.snapdragon.matrix.Matrix;
 
-public interface ActivationFunction {
+public interface LossFunction {
 
-    Matrix apply(Matrix matrix);
-
-    Matrix derivative(Matrix outputs);
+    Matrix derivative(Matrix outputs, Matrix labels);
 }

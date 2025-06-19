@@ -8,69 +8,69 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
+final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
 
     @Test
-    void givenDifferentSizeInputs_whenOutputs_thenIllegalArgumentExceptionThrown() {
+    void givenDifferentSizeInputs_whenPrediction_thenIllegalArgumentExceptionThrown() {
         var neuralNetwork = neuralNetwork(
             List.of(Matrix.horizontalVector(1)),
             List.of(Matrix.horizontalVector(1))
         );
         var tooManyInputs = Matrix.horizontalVector(1, 2);
-        assertThatThrownBy(() -> neuralNetwork.outputs(tooManyInputs))
+        assertThatThrownBy(() -> neuralNetwork.prediction(tooManyInputs))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void givenSingleInputOutput_whenOutputs_thenExpectedOutputs() {
+    void givenSingleInputOutput_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1)),
                 List.of(Matrix.horizontalVector(2))
             )
-                .outputs(Matrix.horizontalVector(3))
+                .prediction(Matrix.horizontalVector(3))
         )
             .isEqualTo(Matrix.horizontalVector(sigmoid(3 * 1 + 2)));
     }
 
     @Test
-    void givenBatchedInputs_whenOutputs_thenExpectedOutputs() {
+    void givenBatchedInputs_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1)),
                 List.of(Matrix.horizontalVector(2))
             )
-                .outputs(Matrix.verticalVector(3, 4))
+                .prediction(Matrix.verticalVector(3, 4))
         )
             .isEqualTo(Matrix.verticalVector(sigmoid(3 * 1 + 2), sigmoid(4 * 1 + 2)));
     }
 
     @Test
-    void givenMultipleInputs_whenOutputs_thenExpectedOutputs() {
+    void givenMultipleInputs_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.verticalVector(1, 2)),
                 List.of(Matrix.horizontalVector(3))
             )
-                .outputs(Matrix.horizontalVector(4, 5))
+                .prediction(Matrix.horizontalVector(4, 5))
         )
             .isEqualTo(Matrix.horizontalVector(sigmoid(4 * 1 + 5 * 2 + 3)));
     }
 
     @Test
-    void givenMultipleOutputs_whenOutputs_thenExpectedOutputs() {
+    void givenMultipleOutputs_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(1, 2)),
                 List.of(Matrix.horizontalVector(3, 4))
             )
-                .outputs(Matrix.horizontalVector(5))
+                .prediction(Matrix.horizontalVector(5))
         )
             .isEqualTo(Matrix.horizontalVector(sigmoid(5 * 1 + 3), sigmoid(5 * 2 + 4)));
     }
 
     @Test
-    void givenSingleNeuronHiddenLayer_whenOutputs_thenExpectedOutputs() {
+    void givenSingleNeuronHiddenLayer_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -82,13 +82,13 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(4)
                 )
             )
-                .outputs(Matrix.horizontalVector(5))
+                .prediction(Matrix.horizontalVector(5))
         )
             .isEqualTo(Matrix.horizontalVector(sigmoid(sigmoid(5 * 1 + 3) * 2 + 4)));
     }
 
     @Test
-    void givenMultipleNeuronHiddenLayer_whenOutputs_thenExpectedOutputs() {
+    void givenMultipleNeuronHiddenLayer_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -100,7 +100,7 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(7)
                 )
             )
-                .outputs(Matrix.horizontalVector(8))
+                .prediction(Matrix.horizontalVector(8))
         )
             .isEqualTo(
                 Matrix.horizontalVector(
@@ -114,7 +114,7 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleHiddenLayers_whenOutputs_thenExpectedOutputs() {
+    void givenMultipleHiddenLayers_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -128,7 +128,7 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(6)
                 )
             )
-                .outputs(Matrix.horizontalVector(7))
+                .prediction(Matrix.horizontalVector(7))
         )
             .isEqualTo(
                 Matrix.horizontalVector(
@@ -138,7 +138,7 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleLayersMultipleNeurons_whenOutputs_thenExpectedOutputs() {
+    void givenMultipleLayersMultipleNeurons_whenPrediction_thenExpectedPrediction() {
         var neuron13 = sigmoid(19 * 1 + 20 * 3 + 13);
         var neuron14 = sigmoid(19 * 2 + 20 * 4 + 14);
         var neuron15 = sigmoid(neuron13 * 5 + neuron14 * 7 + 15);
@@ -156,7 +156,7 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(17, 18)
                 )
             )
-                .outputs(
+                .prediction(
                     Matrix.horizontalVector(19, 20)
                 )
         )
