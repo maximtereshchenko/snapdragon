@@ -8,44 +8,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-final class NeuralNetworkTests {
-
-    @Test
-    void givenNoWeightsBiases_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var empty = List.<Matrix>of();
-        assertThatThrownBy(() -> neuralNetwork(empty, empty))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void givenDifferentSizeWeightsAndBiases_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var weights = List.<Matrix>of();
-        var biases = List.of(Matrix.horizontalVector(1));
-        assertThatThrownBy(() -> neuralNetwork(weights, biases))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void givenDifferentWeightColumnsBiasesColumns_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var twoWeights = List.of(Matrix.horizontalVector(1, 2));
-        var oneBias = List.of(Matrix.horizontalVector(1));
-        assertThatThrownBy(() -> neuralNetwork(twoWeights, oneBias))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void givenDifferentWeightRowsBiasesColumns_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var oneWeightOutputLayer = List.of(
-            Matrix.horizontalVector(1, 2),
-            Matrix.horizontalVector(1)
-        );
-        var oneBiasOutputLayer = List.of(
-            Matrix.horizontalVector(1, 2),
-            Matrix.horizontalVector(1)
-        );
-        assertThatThrownBy(() -> neuralNetwork(oneWeightOutputLayer, oneBiasOutputLayer))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
+final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenDifferentSizeInputs_whenOutputs_thenIllegalArgumentExceptionThrown() {
@@ -203,13 +166,5 @@ final class NeuralNetworkTests {
                     sigmoid(neuron15 * 10 + neuron16 * 12 + 18)
                 )
             );
-    }
-
-    private NeuralNetwork neuralNetwork(List<Matrix> weights, List<Matrix> biases) {
-        return NeuralNetwork.from(weights, biases, new Sigmoid(), new Sigmoid());
-    }
-
-    private double sigmoid(double value) {
-        return 1 / (1 + Math.pow(Math.E, -value));
     }
 }
