@@ -118,6 +118,10 @@ public final class Matrix {
         return Matrix.from(broadcasted);
     }
 
+    public double value(int row, int column) {
+        return values[row][column];
+    }
+
     private Matrix applied(IndexedValueOperator operator) {
         var applied = new double[rows()][columns()];
         for (var rowIndex = 0; rowIndex < rows(); rowIndex++) {

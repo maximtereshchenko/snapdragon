@@ -94,11 +94,18 @@ public final class NeuralNetwork {
         }
         var adjustedBiases = new ArrayList<Matrix>();
         for (var i = 0; i < biases.size(); i++) {
+            var delta = deltas[i];
+            var vector = new double[delta.columns()];
+            for (var row = 0; row < delta.rows(); row++) {
+                for (var column = 0; column < delta.columns(); column++) {
+                    vector[column] += delta.value(row, column);
+                }
+            }
             adjustedBiases.add(
                 biases.get(i)
                     .combined(
-                        deltas[i].applied(value -> value / inputs.rows())
-                            .applied(value -> learningRate * value),
+                        Matrix.horizontalVector(vector)
+                            .applied(value -> learningRate * value / inputs.rows()),
                         (a, b) -> a - b
                     )
             );
