@@ -1,6 +1,4 @@
-package com.github.maximtereshchenko.snapdragon.neuronnetwork;
-
-import com.github.maximtereshchenko.snapdragon.matrix.Matrix;
+package com.github.maximtereshchenko.snapdragon;
 
 import java.util.ArrayList;
 import java.util.List;

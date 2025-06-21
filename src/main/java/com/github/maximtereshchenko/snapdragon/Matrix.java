@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.snapdragon.matrix;
+package com.github.maximtereshchenko.snapdragon;
 
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;

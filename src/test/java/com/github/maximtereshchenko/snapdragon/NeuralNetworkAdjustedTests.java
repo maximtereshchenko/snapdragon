@@ -1,6 +1,5 @@
-package com.github.maximtereshchenko.snapdragon.neuronnetwork;
+package com.github.maximtereshchenko.snapdragon;
 
-import com.github.maximtereshchenko.snapdragon.matrix.Matrix;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
