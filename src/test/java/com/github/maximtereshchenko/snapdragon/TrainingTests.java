@@ -21,7 +21,7 @@ final class TrainingTests {
             )
                 .trainedNeuralNetwork()
         )
-            .isEqualTo(new FakeNeuralNetwork(1));
+            .isEqualTo(new FakeNeuralNetwork(1, 0));
     }
 
     @Test
@@ -33,10 +33,26 @@ final class TrainingTests {
                 0,
                 0.1,
                 new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork(0.0, 0.9)
+                new FakeNeuralNetwork(0.5, 1.0)
             )
                 .trainedNeuralNetwork()
         )
-            .isEqualTo(new FakeNeuralNetwork(2));
+            .isEqualTo(new FakeNeuralNetwork(2, 0));
+    }
+
+    @Test
+    void given1NoImprovementEpochForPatience1_whenTrainedNeuralNetwork_thenNeuralNetworkGeneration2() {
+        assertThat(
+            new Training(
+                Map.of(new double[]{1}, new double[]{1}),
+                Map.of(new double[]{1}, new double[]{1}),
+                1,
+                0.1,
+                new CategoricalCrossEntropy(),
+                new FakeNeuralNetwork(0.9, 0.8)
+            )
+                .trainedNeuralNetwork()
+        )
+            .isEqualTo(new FakeNeuralNetwork(2, 1));
     }
 }
