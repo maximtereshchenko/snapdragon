@@ -12,6 +12,7 @@ public final class Training {
     private final double learningRate;
     private final LossFunction lossFunction;
     private final NeuralNetwork neuralNetwork;
+    private final int total;
 
     public Training(
         Map<double[], double[]> trainingDataset,
@@ -19,7 +20,8 @@ public final class Training {
         int patience,
         double learningRate,
         LossFunction lossFunction,
-        NeuralNetwork neuralNetwork
+        NeuralNetwork neuralNetwork,
+        int total
     ) {
         this.trainingDataset = trainingDataset;
         this.controlDataset = controlDataset;
@@ -27,12 +29,14 @@ public final class Training {
         this.learningRate = learningRate;
         this.lossFunction = lossFunction;
         this.neuralNetwork = neuralNetwork;
+        this.total = total;
     }
 
     NeuralNetwork trainedNeuralNetwork() {
         var bestLoss = Double.MAX_VALUE;
         var bestNeuralNetwork = neuralNetwork;
         var noImprovementEpochs = 0;
+        var epochs = 0;
         do {
             var entries = new ArrayList<>(trainingDataset.entrySet());
             Collections.shuffle(entries);
@@ -66,7 +70,8 @@ public final class Training {
             } else {
                 noImprovementEpochs++;
             }
-        } while (noImprovementEpochs <= patience);
+            epochs++;
+        } while (noImprovementEpochs <= patience && epochs < total);
         return bestNeuralNetwork;
     }
 }

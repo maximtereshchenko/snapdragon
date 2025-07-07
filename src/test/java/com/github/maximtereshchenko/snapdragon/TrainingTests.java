@@ -17,7 +17,8 @@ final class TrainingTests {
                 0,
                 0.1,
                 new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork()
+                new FakeNeuralNetwork(),
+                10
             )
                 .trainedNeuralNetwork()
         )
@@ -33,7 +34,8 @@ final class TrainingTests {
                 0,
                 0.1,
                 new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork(0.5, 1.0)
+                new FakeNeuralNetwork(0.5, 1.0),
+                10
             )
                 .trainedNeuralNetwork()
         )
@@ -49,10 +51,28 @@ final class TrainingTests {
                 1,
                 0.1,
                 new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork(0.9, 0.8)
+                new FakeNeuralNetwork(0.9, 0.8),
+                10
             )
                 .trainedNeuralNetwork()
         )
             .isEqualTo(new FakeNeuralNetwork(2, 1));
+    }
+
+    @Test
+    void givenImprovingNeuralNetworkWithLimit_whenTrainedNeuralNetwork_thenNeuralNetworkGeneration3() {
+        assertThat(
+            new Training(
+                Map.of(new double[]{1}, new double[]{1}),
+                Map.of(new double[]{1}, new double[]{1}),
+                10,
+                0.1,
+                new CategoricalCrossEntropy(),
+                new FakeNeuralNetwork(0.1, 0.2, 0.3),
+                3
+            )
+                .trainedNeuralNetwork()
+        )
+            .isEqualTo(new FakeNeuralNetwork(3, 1));
     }
 }
