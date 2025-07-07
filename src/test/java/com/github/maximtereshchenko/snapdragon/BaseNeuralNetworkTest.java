@@ -5,10 +5,7 @@ import java.util.List;
 abstract class BaseNeuralNetworkTest {
 
     final NeuralNetwork neuralNetwork(List<Matrix> weights, List<Matrix> biases) {
-        return MultiLayerPerceptron.from(weights, biases, new Sigmoid(), new Sigmoid());
-    }
-
-    final double sigmoid(double value) {
-        return 1 / (1 + Math.pow(Math.E, -value));
+        var activationFunction = new FakeActivationFunction();
+        return MultiLayerPerceptron.from(weights, biases, activationFunction, activationFunction);
     }
 }

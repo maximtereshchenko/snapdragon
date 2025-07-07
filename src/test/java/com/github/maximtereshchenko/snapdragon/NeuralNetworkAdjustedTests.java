@@ -10,59 +10,56 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenSingleInputOutput_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var output = sigmoid(3 * 1 + 2);
-        var outputDelta = categoricalCrossEntropyDerivative(0.5, output) *
-                              sigmoidDerivative(output);
+        var output = 0.4 * 0.2 + 0.3;
+        var outputDelta = output * output;
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(1)),
-                List.of(Matrix.horizontalVector(2))
+                List.of(Matrix.horizontalVector(0.2)),
+                List.of(Matrix.horizontalVector(0.3))
             )
                 .adjusted(
-                    Matrix.horizontalVector(3),
-                    Matrix.horizontalVector(0.5),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0.4),
+                    Matrix.horizontalVector(0),
+                    new FakeLossFunction(),
+                    0.5
                 )
         )
             .isEqualTo(
                 neuralNetwork(
-                    List.of(Matrix.horizontalVector(1 - 0.1 * 3 * outputDelta)),
-                    List.of(Matrix.horizontalVector(2 - 0.1 * outputDelta))
+                    List.of(Matrix.horizontalVector(0.2 - 0.5 * 0.4 * outputDelta)),
+                    List.of(Matrix.horizontalVector(0.3 - 0.5 * outputDelta))
                 )
             );
     }
 
     @Test
     void givenBatchedInputs_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var firstOutput = sigmoid(3 * 1 + 2);
-        var secondOutput = sigmoid(4 * 1 + 2);
-        var firstOutputDelta = categoricalCrossEntropyDerivative(0.3, firstOutput) *
-                                   sigmoidDerivative(firstOutput);
-        var secondOutputDelta = categoricalCrossEntropyDerivative(0.7, secondOutput) *
-                                    sigmoidDerivative(secondOutput);
+        var firstOutput = 0.4 * 0.2 + 0.3;
+        var secondOutput = 0.5 * 0.2 + 0.3;
+        var firstOutputDelta = firstOutput * firstOutput;
+        var secondOutputDelta = secondOutput * secondOutput;
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(1)),
-                List.of(Matrix.horizontalVector(2))
+                List.of(Matrix.horizontalVector(0.2)),
+                List.of(Matrix.horizontalVector(0.3))
             )
                 .adjusted(
-                    Matrix.verticalVector(3, 4),
-                    Matrix.verticalVector(0.3, 0.7),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.verticalVector(0.4, 0.5),
+                    Matrix.verticalVector(0, 0),
+                    new FakeLossFunction(),
+                    0.6
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
                         Matrix.horizontalVector(
-                            1 - 0.1 * (3 * firstOutputDelta + 4 * secondOutputDelta) / 2
+                            0.2 - 0.6 * (0.4 * firstOutputDelta + 0.5 * secondOutputDelta) / 2
                         )
                     ),
                     List.of(
                         Matrix.horizontalVector(
-                            2 - 0.1 * (firstOutputDelta + secondOutputDelta) / 2
+                            0.3 - 0.6 * (firstOutputDelta + secondOutputDelta) / 2
                         )
                     )
                 )
@@ -71,31 +68,30 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleInputs_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var output = sigmoid(4 * 1 + 5 * 2 + 3);
-        var outputDelta = categoricalCrossEntropyDerivative(0.5, output) *
-                              sigmoidDerivative(output);
+        var output = 0.7 * 0.4 + 0.8 * 0.5 + 0.6;
+        var outputDelta = output * output;
         assertThat(
             neuralNetwork(
-                List.of(Matrix.verticalVector(1, 2)),
-                List.of(Matrix.horizontalVector(3))
+                List.of(Matrix.verticalVector(0.4, 0.5)),
+                List.of(Matrix.horizontalVector(0.6))
             )
                 .adjusted(
-                    Matrix.horizontalVector(4, 5),
-                    Matrix.horizontalVector(0.5),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0.7, 0.8),
+                    Matrix.horizontalVector(0),
+                    new FakeLossFunction(),
+                    0.9
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
                         Matrix.verticalVector(
-                            1 - 0.1 * 4 * outputDelta,
-                            2 - 0.1 * 5 * outputDelta
+                            0.4 - 0.9 * 0.7 * outputDelta,
+                            0.5 - 0.9 * 0.8 * outputDelta
                         )
                     ),
                     List.of(
-                        Matrix.horizontalVector(3 - 0.1 * outputDelta)
+                        Matrix.horizontalVector(0.6 - 0.9 * outputDelta)
                     )
                 )
             );
@@ -103,36 +99,34 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleOutputs_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var firstOutput = sigmoid(5 * 1 + 3);
-        var secondOutput = sigmoid(5 * 2 + 4);
-        var firstOutputDelta = categoricalCrossEntropyDerivative(0.3, firstOutput) *
-                                   sigmoidDerivative(firstOutput);
-        var secondOutputDelta = categoricalCrossEntropyDerivative(0.7, secondOutput) *
-                                    sigmoidDerivative(secondOutput);
+        var firstOutput = 0.5 * 0.1 + 0.3;
+        var secondOutput = 0.5 * 0.2 + 0.4;
+        var firstOutputDelta = firstOutput * firstOutput;
+        var secondOutputDelta = secondOutput * secondOutput;
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(1, 2)),
-                List.of(Matrix.horizontalVector(3, 4))
+                List.of(Matrix.horizontalVector(0.1, 0.2)),
+                List.of(Matrix.horizontalVector(0.3, 0.4))
             )
                 .adjusted(
-                    Matrix.horizontalVector(5),
-                    Matrix.horizontalVector(0.3, 0.7),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0.5),
+                    Matrix.horizontalVector(0, 0),
+                    new FakeLossFunction(),
+                    0.6
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
                         Matrix.horizontalVector(
-                            1 - 0.1 * 5 * firstOutputDelta,
-                            2 - 0.1 * 5 * secondOutputDelta
+                            0.1 - 0.6 * 0.5 * firstOutputDelta,
+                            0.2 - 0.6 * 0.5 * secondOutputDelta
                         )
                     ),
                     List.of(
                         Matrix.horizontalVector(
-                            3 - 0.1 * firstOutputDelta,
-                            4 - 0.1 * secondOutputDelta
+                            0.3 - 0.6 * firstOutputDelta,
+                            0.4 - 0.6 * secondOutputDelta
                         )
                     )
                 )
@@ -141,38 +135,37 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenSingleHiddenNeuron_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var hiddenNeuronOutput = sigmoid(5 * 1 + 3);
-        var output = sigmoid(hiddenNeuronOutput * 2 + 4);
-        var outputDelta = categoricalCrossEntropyDerivative(0.5, output) *
-                              sigmoidDerivative(output);
-        var hiddenNeuronDelta = 2 * outputDelta * sigmoidDerivative(hiddenNeuronOutput);
+        var hiddenNeuronOutput = 0.5 * 0.1 + 0.3;
+        var output = hiddenNeuronOutput * 0.2 + 0.4;
+        var outputDelta = output * output;
+        var hiddenNeuronDelta = 0.2 * outputDelta * hiddenNeuronOutput;
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(1),
-                    Matrix.horizontalVector(2)
+                    Matrix.horizontalVector(0.1),
+                    Matrix.horizontalVector(0.2)
                 ),
                 List.of(
-                    Matrix.horizontalVector(3),
-                    Matrix.horizontalVector(4)
+                    Matrix.horizontalVector(0.3),
+                    Matrix.horizontalVector(0.4)
                 )
             )
                 .adjusted(
-                    Matrix.horizontalVector(5),
                     Matrix.horizontalVector(0.5),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0),
+                    new FakeLossFunction(),
+                    0.6
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
-                        Matrix.horizontalVector(1 - 0.1 * 5 * hiddenNeuronDelta),
-                        Matrix.horizontalVector(2 - 0.1 * hiddenNeuronOutput * outputDelta)
+                        Matrix.horizontalVector(0.1 - 0.6 * 0.5 * hiddenNeuronDelta),
+                        Matrix.horizontalVector(0.2 - 0.6 * hiddenNeuronOutput * outputDelta)
                     ),
                     List.of(
-                        Matrix.horizontalVector(3 - 0.1 * hiddenNeuronDelta),
-                        Matrix.horizontalVector(4 - 0.1 * outputDelta)
+                        Matrix.horizontalVector(0.3 - 0.6 * hiddenNeuronDelta),
+                        Matrix.horizontalVector(0.4 - 0.6 * outputDelta)
                     )
                 )
             );
@@ -180,49 +173,48 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleHiddenNeurons_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var firstHiddenNeuronOutput = sigmoid(8 * 1 + 5);
-        var secondHiddenNeuronOutput = sigmoid(8 * 2 + 6);
-        var output = sigmoid(firstHiddenNeuronOutput * 3 + secondHiddenNeuronOutput * 4 + 7);
-        var outputDelta = categoricalCrossEntropyDerivative(0.5, output) *
-                              sigmoidDerivative(output);
-        var firstHiddenNeuronDelta = 3 * outputDelta * sigmoidDerivative(firstHiddenNeuronOutput);
-        var secondHiddenNeuronDelta = 4 * outputDelta * sigmoidDerivative(secondHiddenNeuronOutput);
+        var firstHiddenNeuronOutput = 0.9 * 0.2 + 0.6;
+        var secondHiddenNeuronOutput = 0.9 * 0.3 + 0.7;
+        var output = firstHiddenNeuronOutput * 0.4 + secondHiddenNeuronOutput * 0.5 + 0.8;
+        var outputDelta = output * output;
+        var firstHiddenNeuronDelta = 0.4 * outputDelta * firstHiddenNeuronOutput;
+        var secondHiddenNeuronDelta = 0.5 * outputDelta * secondHiddenNeuronOutput;
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(1, 2),
-                    Matrix.verticalVector(3, 4)
+                    Matrix.horizontalVector(0.2, 0.3),
+                    Matrix.verticalVector(0.4, 0.5)
                 ),
                 List.of(
-                    Matrix.horizontalVector(5, 6),
-                    Matrix.horizontalVector(7)
+                    Matrix.horizontalVector(0.6, 0.7),
+                    Matrix.horizontalVector(0.8)
                 )
             )
                 .adjusted(
-                    Matrix.horizontalVector(8),
-                    Matrix.horizontalVector(0.5),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0.9),
+                    Matrix.horizontalVector(0),
+                    new FakeLossFunction(),
+                    1.0
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
                         Matrix.horizontalVector(
-                            1 - 0.1 * 8 * firstHiddenNeuronDelta,
-                            2 - 0.1 * 8 * secondHiddenNeuronDelta
+                            0.2 - 1.0 * 0.9 * firstHiddenNeuronDelta,
+                            0.3 - 1.0 * 0.9 * secondHiddenNeuronDelta
                         ),
                         Matrix.verticalVector(
-                            3 - 0.1 * firstHiddenNeuronOutput * outputDelta,
-                            4 - 0.1 * secondHiddenNeuronOutput * outputDelta
+                            0.4 - 1.0 * firstHiddenNeuronOutput * outputDelta,
+                            0.5 - 1.0 * secondHiddenNeuronOutput * outputDelta
                         )
                     ),
                     List.of(
                         Matrix.horizontalVector(
-                            5 - 0.1 * firstHiddenNeuronDelta,
-                            6 - 0.1 * secondHiddenNeuronDelta
+                            0.6 - 1.0 * firstHiddenNeuronDelta,
+                            0.7 - 1.0 * secondHiddenNeuronDelta
                         ),
-                        Matrix.horizontalVector(7 - 0.1 * outputDelta)
+                        Matrix.horizontalVector(0.8 - 1.0 * outputDelta)
                     )
                 )
             );
@@ -230,45 +222,43 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleHiddenLayers_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var firstHiddenLayerNeuronOutput = sigmoid(7 * 1 + 4);
-        var secondHiddenLayerNeuronOutput = sigmoid(firstHiddenLayerNeuronOutput * 2 + 5);
-        var output = sigmoid(secondHiddenLayerNeuronOutput * 3 + 6);
-        var outputDelta = categoricalCrossEntropyDerivative(0.5, output) *
-                              sigmoidDerivative(output);
-        var secondHiddenLayerNeuronDelta = 3 * outputDelta * sigmoidDerivative(secondHiddenLayerNeuronOutput);
-        var firstHiddenLayerNeuronDelta = 2 * secondHiddenLayerNeuronDelta *
-                                              sigmoidDerivative(firstHiddenLayerNeuronOutput);
+        var firstHiddenLayerNeuronOutput = 0.7 * 0.1 + 0.4;
+        var secondHiddenLayerNeuronOutput = firstHiddenLayerNeuronOutput * 0.2 + 0.5;
+        var output = secondHiddenLayerNeuronOutput * 0.3 + 0.6;
+        var outputDelta = output * output;
+        var secondHiddenLayerNeuronDelta = 0.3 * outputDelta * secondHiddenLayerNeuronOutput;
+        var firstHiddenLayerNeuronDelta = 0.2 * secondHiddenLayerNeuronDelta * firstHiddenLayerNeuronOutput;
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(1),
-                    Matrix.horizontalVector(2),
-                    Matrix.horizontalVector(3)
+                    Matrix.horizontalVector(0.1),
+                    Matrix.horizontalVector(0.2),
+                    Matrix.horizontalVector(0.3)
                 ),
                 List.of(
-                    Matrix.horizontalVector(4),
-                    Matrix.horizontalVector(5),
-                    Matrix.horizontalVector(6)
+                    Matrix.horizontalVector(0.4),
+                    Matrix.horizontalVector(0.5),
+                    Matrix.horizontalVector(0.6)
                 )
             )
                 .adjusted(
-                    Matrix.horizontalVector(7),
-                    Matrix.horizontalVector(0.5),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0.7),
+                    Matrix.horizontalVector(0),
+                    new FakeLossFunction(),
+                    0.8
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
-                        Matrix.horizontalVector(1 - 0.1 * 7 * firstHiddenLayerNeuronDelta),
-                        Matrix.horizontalVector(2 - 0.1 * firstHiddenLayerNeuronOutput * secondHiddenLayerNeuronDelta),
-                        Matrix.horizontalVector(3 - 0.1 * secondHiddenLayerNeuronOutput * outputDelta)
+                        Matrix.horizontalVector(0.1 - 0.8 * 0.7 * firstHiddenLayerNeuronDelta),
+                        Matrix.horizontalVector(0.2 - 0.8 * firstHiddenLayerNeuronOutput * secondHiddenLayerNeuronDelta),
+                        Matrix.horizontalVector(0.3 - 0.8 * secondHiddenLayerNeuronOutput * outputDelta)
                     ),
                     List.of(
-                        Matrix.horizontalVector(4 - 0.1 * firstHiddenLayerNeuronDelta),
-                        Matrix.horizontalVector(5 - 0.1 * secondHiddenLayerNeuronDelta),
-                        Matrix.horizontalVector(6 - 0.1 * outputDelta)
+                        Matrix.horizontalVector(0.4 - 0.8 * firstHiddenLayerNeuronDelta),
+                        Matrix.horizontalVector(0.5 - 0.8 * secondHiddenLayerNeuronDelta),
+                        Matrix.horizontalVector(0.6 - 0.8 * outputDelta)
                     )
                 )
             );
@@ -276,38 +266,36 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleLayersMultipleNeurons_whenAdjusted_thenAdjustedNeuralNetwork() {
-        var output13 = sigmoid(19 * 1 + 20 * 3 + 13);
-        var output14 = sigmoid(19 * 2 + 20 * 4 + 14);
-        var output15 = sigmoid(output13 * 5 + output14 * 7 + 15);
-        var output16 = sigmoid(output13 * 6 + output14 * 8 + 16);
-        var output17 = sigmoid(output15 * 9 + output16 * 10 + 17);
-        var output18 = sigmoid(output15 * 11 + output16 * 12 + 18);
-        var outputDelta17 = categoricalCrossEntropyDerivative(0.3, output17) *
-                                sigmoidDerivative(output17);
-        var outputDelta18 = categoricalCrossEntropyDerivative(0.7, output18) *
-                                sigmoidDerivative(output18);
-        var outputDelta15 = (9 * outputDelta17 + 10 * outputDelta18) * sigmoidDerivative(output15);
-        var outputDelta16 = (11 * outputDelta17 + 12 * outputDelta18) * sigmoidDerivative(output16);
-        var outputDelta13 = (5 * outputDelta15 + 6 * outputDelta16) * sigmoidDerivative(output13);
-        var outputDelta14 = (7 * outputDelta15 + 8 * outputDelta16) * sigmoidDerivative(output14);
+        var output13 = 0.21 * 0.3 + 0.22 * 0.5 + 0.15;
+        var output14 = 0.21 * 0.4 + 0.22 * 0.6 + 0.16;
+        var output15 = output13 * 0.7 + output14 * 0.9 + 0.17;
+        var output16 = output13 * 0.8 + output14 * 1.0 + 0.18;
+        var output17 = output15 * 0.11 + output16 * 0.13 + 0.19;
+        var output18 = output15 * 0.12 + output16 * 0.14 + 0.20;
+        var outputDelta17 = output17 * output17;
+        var outputDelta18 = output18 * output18;
+        var outputDelta15 = (0.11 * outputDelta17 + 0.12 * outputDelta18) * output15;
+        var outputDelta16 = (0.13 * outputDelta17 + 0.14 * outputDelta18) * output16;
+        var outputDelta13 = (0.7 * outputDelta15 + 0.8 * outputDelta16) * output13;
+        var outputDelta14 = (0.9 * outputDelta15 + 1.0 * outputDelta16) * output14;
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.from(new double[][]{{1, 2}, {3, 4}}),
-                    Matrix.from(new double[][]{{5, 6}, {7, 8}}),
-                    Matrix.from(new double[][]{{9, 10}, {11, 12}})
+                    Matrix.from(new double[][]{{0.3, 0.4}, {0.5, 0.6}}),
+                    Matrix.from(new double[][]{{0.7, 0.8}, {0.9, 1.0}}),
+                    Matrix.from(new double[][]{{0.11, 0.12}, {0.13, 0.14}})
                 ),
                 List.of(
-                    Matrix.horizontalVector(13, 14),
-                    Matrix.horizontalVector(15, 16),
-                    Matrix.horizontalVector(17, 18)
+                    Matrix.horizontalVector(0.15, 0.16),
+                    Matrix.horizontalVector(0.17, 0.18),
+                    Matrix.horizontalVector(0.19, 0.20)
                 )
             )
                 .adjusted(
-                    Matrix.horizontalVector(19, 20),
-                    Matrix.horizontalVector(0.3, 0.7),
-                    new CategoricalCrossEntropy(),
-                    0.1
+                    Matrix.horizontalVector(0.21, 0.22),
+                    Matrix.horizontalVector(0, 0),
+                    new FakeLossFunction(),
+                    0.23
                 )
         )
             .isEqualTo(
@@ -316,63 +304,55 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                         Matrix.from(
                             new double[][]{
                                 {
-                                    1 - 0.1 * 19 * outputDelta13,
-                                    2 - 0.1 * 19 * outputDelta14
+                                    0.3 - 0.23 * 0.21 * outputDelta13,
+                                    0.4 - 0.23 * 0.21 * outputDelta14
                                 },
                                 {
-                                    3 - 0.1 * 20 * outputDelta13,
-                                    4 - 0.1 * 20 * outputDelta14
+                                    0.5 - 0.23 * 0.22 * outputDelta13,
+                                    0.6 - 0.23 * 0.22 * outputDelta14
                                 }
                             }
                         ),
                         Matrix.from(
                             new double[][]{
                                 {
-                                    5 - 0.1 * output13 * outputDelta15,
-                                    6 - 0.1 * output13 * outputDelta16
+                                    0.7 - 0.23 * output13 * outputDelta15,
+                                    0.8 - 0.23 * output13 * outputDelta16
                                 },
                                 {
-                                    7 - 0.1 * output14 * outputDelta15,
-                                    8 - 0.1 * output14 * outputDelta16
+                                    0.9 - 0.23 * output14 * outputDelta15,
+                                    1.0 - 0.23 * output14 * outputDelta16
                                 }
                             }
                         ),
                         Matrix.from(
                             new double[][]{
                                 {
-                                    9 - 0.1 * output15 * outputDelta17,
-                                    10 - 0.1 * output15 * outputDelta18
+                                    0.11 - 0.23 * output15 * outputDelta17,
+                                    0.12 - 0.23 * output15 * outputDelta18
                                 },
                                 {
-                                    11 - 0.1 * output16 * outputDelta17,
-                                    12 - 0.1 * output16 * outputDelta18
+                                    0.13 - 0.23 * output16 * outputDelta17,
+                                    0.14 - 0.23 * output16 * outputDelta18
                                 }
                             }
                         )
                     ),
                     List.of(
                         Matrix.horizontalVector(
-                            13 - 0.1 * outputDelta13,
-                            14 - 0.1 * outputDelta14
+                            0.15 - 0.23 * outputDelta13,
+                            0.16 - 0.23 * outputDelta14
                         ),
                         Matrix.horizontalVector(
-                            15 - 0.1 * outputDelta15,
-                            16 - 0.1 * outputDelta16
+                            0.17 - 0.23 * outputDelta15,
+                            0.18 - 0.23 * outputDelta16
                         ),
                         Matrix.horizontalVector(
-                            17 - 0.1 * outputDelta17,
-                            18 - 0.1 * outputDelta18
+                            0.19 - 0.23 * outputDelta17,
+                            0.20 - 0.23 * outputDelta18
                         )
                     )
                 )
             );
-    }
-
-    private double categoricalCrossEntropyDerivative(double label, double output) {
-        return -label / output;
-    }
-
-    private double sigmoidDerivative(double output) {
-        return output * (1 - output);
     }
 }

@@ -12,10 +12,10 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
     @Test
     void givenDifferentSizeInputs_whenPrediction_thenIllegalArgumentExceptionThrown() {
         var neuralNetwork = neuralNetwork(
-            List.of(Matrix.horizontalVector(1)),
-            List.of(Matrix.horizontalVector(1))
+            List.of(Matrix.horizontalVector(0.1)),
+            List.of(Matrix.horizontalVector(0.1))
         );
-        var tooManyInputs = Matrix.horizontalVector(1, 2);
+        var tooManyInputs = Matrix.horizontalVector(0.1, 0.2);
         assertThatThrownBy(() -> neuralNetwork.prediction(tooManyInputs))
             .isInstanceOf(IllegalArgumentException.class);
     }
@@ -24,48 +24,48 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
     void givenSingleInputOutput_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(1)),
-                List.of(Matrix.horizontalVector(2))
+                List.of(Matrix.horizontalVector(0.1)),
+                List.of(Matrix.horizontalVector(0.2))
             )
-                .prediction(Matrix.horizontalVector(3))
+                .prediction(Matrix.horizontalVector(0.3))
         )
-            .isEqualTo(Matrix.horizontalVector(sigmoid(3 * 1 + 2)));
+            .isEqualTo(Matrix.horizontalVector(0.3 * 0.1 + 0.2));
     }
 
     @Test
     void givenBatchedInputs_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(1)),
-                List.of(Matrix.horizontalVector(2))
+                List.of(Matrix.horizontalVector(0.1)),
+                List.of(Matrix.horizontalVector(0.2))
             )
-                .prediction(Matrix.verticalVector(3, 4))
+                .prediction(Matrix.verticalVector(0.3, 0.4))
         )
-            .isEqualTo(Matrix.verticalVector(sigmoid(3 * 1 + 2), sigmoid(4 * 1 + 2)));
+            .isEqualTo(Matrix.verticalVector(0.3 * 0.1 + 0.2, 0.4 * 0.1 + 0.2));
     }
 
     @Test
     void givenMultipleInputs_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.verticalVector(1, 2)),
-                List.of(Matrix.horizontalVector(3))
+                List.of(Matrix.verticalVector(0.1, 0.2)),
+                List.of(Matrix.horizontalVector(0.3))
             )
-                .prediction(Matrix.horizontalVector(4, 5))
+                .prediction(Matrix.horizontalVector(0.4, 0.5))
         )
-            .isEqualTo(Matrix.horizontalVector(sigmoid(4 * 1 + 5 * 2 + 3)));
+            .isEqualTo(Matrix.horizontalVector(0.4 * 0.1 + 0.5 * 0.2 + 0.3));
     }
 
     @Test
     void givenMultipleOutputs_whenPrediction_thenExpectedPrediction() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(1, 2)),
-                List.of(Matrix.horizontalVector(3, 4))
+                List.of(Matrix.horizontalVector(0.1, 0.2)),
+                List.of(Matrix.horizontalVector(0.3, 0.4))
             )
-                .prediction(Matrix.horizontalVector(5))
+                .prediction(Matrix.horizontalVector(0.5))
         )
-            .isEqualTo(Matrix.horizontalVector(sigmoid(5 * 1 + 3), sigmoid(5 * 2 + 4)));
+            .isEqualTo(Matrix.horizontalVector(0.5 * 0.1 + 0.3, 0.5 * 0.2 + 0.4));
     }
 
     @Test
@@ -73,17 +73,17 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(1),
-                    Matrix.horizontalVector(2)
+                    Matrix.horizontalVector(0.1),
+                    Matrix.horizontalVector(0.2)
                 ),
                 List.of(
-                    Matrix.horizontalVector(3),
-                    Matrix.horizontalVector(4)
+                    Matrix.horizontalVector(0.3),
+                    Matrix.horizontalVector(0.4)
                 )
             )
-                .prediction(Matrix.horizontalVector(5))
+                .prediction(Matrix.horizontalVector(0.5))
         )
-            .isEqualTo(Matrix.horizontalVector(sigmoid(sigmoid(5 * 1 + 3) * 2 + 4)));
+            .isEqualTo(Matrix.horizontalVector((0.5 * 0.1 + 0.3) * 0.2 + 0.4));
     }
 
     @Test
@@ -91,23 +91,21 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(1, 2),
-                    Matrix.verticalVector(3, 4)
+                    Matrix.horizontalVector(0.1, 0.2),
+                    Matrix.verticalVector(0.3, 0.4)
                 ),
                 List.of(
-                    Matrix.horizontalVector(5, 6),
-                    Matrix.horizontalVector(7)
+                    Matrix.horizontalVector(0.5, 0.6),
+                    Matrix.horizontalVector(0.7)
                 )
             )
-                .prediction(Matrix.horizontalVector(8))
+                .prediction(Matrix.horizontalVector(0.8))
         )
             .isEqualTo(
                 Matrix.horizontalVector(
-                    sigmoid(
-                        sigmoid(8 * 1 + 5) * 3 +
-                            sigmoid(8 * 2 + 6) * 4 +
-                            7
-                    )
+                    (0.8 * 0.1 + 0.5) * 0.3 +
+                        (0.8 * 0.2 + 0.6) * 0.4 +
+                        0.7
                 )
             );
     }
@@ -117,52 +115,50 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(1),
-                    Matrix.horizontalVector(2),
-                    Matrix.horizontalVector(3)
+                    Matrix.horizontalVector(0.1),
+                    Matrix.horizontalVector(0.2),
+                    Matrix.horizontalVector(0.3)
                 ),
                 List.of(
-                    Matrix.horizontalVector(4),
-                    Matrix.horizontalVector(5),
-                    Matrix.horizontalVector(6)
+                    Matrix.horizontalVector(0.4),
+                    Matrix.horizontalVector(0.5),
+                    Matrix.horizontalVector(0.6)
                 )
             )
-                .prediction(Matrix.horizontalVector(7))
+                .prediction(Matrix.horizontalVector(0.7))
         )
             .isEqualTo(
-                Matrix.horizontalVector(
-                    sigmoid(sigmoid(sigmoid(7 * 1 + 4) * 2 + 5) * 3 + 6)
-                )
+                Matrix.horizontalVector(((0.7 * 0.1 + 0.4) * 0.2 + 0.5) * 0.3 + 0.6)
             );
     }
 
     @Test
     void givenMultipleLayersMultipleNeurons_whenPrediction_thenExpectedPrediction() {
-        var neuron13 = sigmoid(19 * 1 + 20 * 3 + 13);
-        var neuron14 = sigmoid(19 * 2 + 20 * 4 + 14);
-        var neuron15 = sigmoid(neuron13 * 5 + neuron14 * 7 + 15);
-        var neuron16 = sigmoid(neuron13 * 6 + neuron14 * 8 + 16);
+        var neuron13 = 0.19 * 0.1 + 0.20 * 0.3 + 0.13;
+        var neuron14 = 0.19 * 0.2 + 0.20 * 0.4 + 0.14;
+        var neuron15 = neuron13 * 0.5 + neuron14 * 0.7 + 0.15;
+        var neuron16 = neuron13 * 0.6 + neuron14 * 0.8 + 0.16;
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.from(new double[][]{{1, 2}, {3, 4}}),
-                    Matrix.from(new double[][]{{5, 6}, {7, 8}}),
-                    Matrix.from(new double[][]{{9, 10}, {11, 12}})
+                    Matrix.from(new double[][]{{0.1, 0.2}, {0.3, 0.4}}),
+                    Matrix.from(new double[][]{{0.5, 0.6}, {0.7, 0.8}}),
+                    Matrix.from(new double[][]{{0.9, 0.10}, {0.11, 0.12}})
                 ),
                 List.of(
-                    Matrix.horizontalVector(13, 14),
-                    Matrix.horizontalVector(15, 16),
-                    Matrix.horizontalVector(17, 18)
+                    Matrix.horizontalVector(0.13, 0.14),
+                    Matrix.horizontalVector(0.15, 0.16),
+                    Matrix.horizontalVector(0.17, 0.18)
                 )
             )
                 .prediction(
-                    Matrix.horizontalVector(19, 20)
+                    Matrix.horizontalVector(0.19, 0.20)
                 )
         )
             .isEqualTo(
                 Matrix.horizontalVector(
-                    sigmoid(neuron15 * 9 + neuron16 * 11 + 17),
-                    sigmoid(neuron15 * 10 + neuron16 * 12 + 18)
+                    neuron15 * 0.9 + neuron16 * 0.11 + 0.17,
+                    neuron15 * 0.10 + neuron16 * 0.12 + 0.18
                 )
             );
     }

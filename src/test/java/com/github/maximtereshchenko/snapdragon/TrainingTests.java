@@ -15,8 +15,8 @@ final class TrainingTests {
                 Map.of(new double[]{1}, new double[]{1}),
                 Map.of(new double[]{1}, new double[]{1}),
                 0,
-                0.1,
-                new CategoricalCrossEntropy(),
+                1,
+                new FakeLossFunction(1.0, 1.0),
                 new FakeNeuralNetwork(),
                 10
             )
@@ -32,9 +32,9 @@ final class TrainingTests {
                 Map.of(new double[]{1}, new double[]{1}),
                 Map.of(new double[]{1}, new double[]{1}),
                 0,
-                0.1,
-                new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork(0.5, 1.0),
+                1,
+                new FakeLossFunction(0.2, 0.1, 0.1),
+                new FakeNeuralNetwork(),
                 10
             )
                 .trainedNeuralNetwork()
@@ -49,9 +49,9 @@ final class TrainingTests {
                 Map.of(new double[]{1}, new double[]{1}),
                 Map.of(new double[]{1}, new double[]{1}),
                 1,
-                0.1,
-                new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork(0.9, 0.8),
+                1,
+                new FakeLossFunction(0.2, 0.1, 0.1, 0.1),
+                new FakeNeuralNetwork(),
                 10
             )
                 .trainedNeuralNetwork()
@@ -66,9 +66,9 @@ final class TrainingTests {
                 Map.of(new double[]{1}, new double[]{1}),
                 Map.of(new double[]{1}, new double[]{1}),
                 10,
-                0.1,
-                new CategoricalCrossEntropy(),
-                new FakeNeuralNetwork(0.1, 0.2, 0.3),
+                1,
+                new FakeLossFunction(0.3, 0.2, 0.1),
+                new FakeNeuralNetwork(),
                 3
             )
                 .trainedNeuralNetwork()

@@ -69,12 +69,14 @@ public final class MultiLayerPerceptron implements NeuralNetwork {
                                             (a, b) -> a * b
                                         );
         for (var i = biases.size() - 2; i >= 0; i--) {
-            deltas[i] = deltas[i + 1].product(
-                    weights.get(i + 1)
-                        .transposed()
-                )
+            var nextDeltas = deltas[i + 1];
+            var thisWeights = weights.get(i + 1);
+            var thisWeightsTransposed = thisWeights.transposed();
+            var product = nextDeltas.product(thisWeightsTransposed);
+            var derivative = hiddenLayerActivationFunction.derivative(outputs.get(i + 1));
+            deltas[i] = product
                             .combined(
-                                hiddenLayerActivationFunction.derivative(outputs.get(i + 1)),
+                                derivative,
                                 (a, b) -> a * b
                             );
         }
