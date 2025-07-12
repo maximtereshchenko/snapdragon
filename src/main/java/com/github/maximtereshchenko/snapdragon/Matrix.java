@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 
-public final class Matrix {
+final class Matrix {
 
     private final double[][] values;
 
@@ -12,7 +12,7 @@ public final class Matrix {
         this.values = values;
     }
 
-    public static Matrix from(double[][] matrix) {
+    static Matrix from(double[][] matrix) {
         if (matrix.length == 0) {
             throw new IllegalArgumentException();
         }
@@ -24,11 +24,11 @@ public final class Matrix {
         return new Matrix(matrix);
     }
 
-    public static Matrix horizontalVector(double... values) {
+    static Matrix horizontalVector(double... values) {
         return from(new double[][]{values});
     }
 
-    public static Matrix verticalVector(double... values) {
+    static Matrix verticalVector(double... values) {
         var matrix = new double[values.length][];
         for (var i = 0; i < values.length; i++) {
             matrix[i] = new double[]{values[i]};
@@ -55,15 +55,15 @@ public final class Matrix {
         return Arrays.deepToString(values);
     }
 
-    public int rows() {
+    int rows() {
         return values.length;
     }
 
-    public int columns() {
+    int columns() {
         return values[0].length;
     }
 
-    public Matrix product(Matrix matrix) {
+    Matrix product(Matrix matrix) {
         if (columns() != matrix.rows()) {
             throw new IllegalArgumentException();
         }
@@ -80,7 +80,7 @@ public final class Matrix {
         return Matrix.from(product);
     }
 
-    public Matrix combined(Matrix matrix, DoubleBinaryOperator operator) {
+    Matrix combined(Matrix matrix, DoubleBinaryOperator operator) {
         if (rows() != matrix.rows() || columns() != matrix.columns()) {
             throw new IllegalArgumentException();
         }
@@ -89,11 +89,11 @@ public final class Matrix {
         );
     }
 
-    public Matrix applied(DoubleUnaryOperator operator) {
+    Matrix applied(DoubleUnaryOperator operator) {
         return applied((row, column, value) -> operator.applyAsDouble(value));
     }
 
-    public Matrix transposed() {
+    Matrix transposed() {
         var transposed = new double[columns()][rows()];
         for (var columnIndex = 0; columnIndex < columns(); columnIndex++) {
             transposed[columnIndex] = column(columnIndex);
@@ -101,7 +101,7 @@ public final class Matrix {
         return Matrix.from(transposed);
     }
 
-    public Matrix broadcasted(int rows, int columns) {
+    Matrix broadcasted(int rows, int columns) {
         if (
             rows() != 1 && rows() != rows ||
                 columns() != 1 && columns() != columns
@@ -112,13 +112,14 @@ public final class Matrix {
         for (var rowIndex = 0; rowIndex < broadcasted.length; rowIndex++) {
             var row = broadcasted[rowIndex];
             for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
-                row[columnIndex] = values[Math.min(rows() - 1, rowIndex)][Math.min(columns() - 1, columnIndex)];
+                row[columnIndex] =
+                    values[Math.min(rows() - 1, rowIndex)][Math.min(columns() - 1, columnIndex)];
             }
         }
         return Matrix.from(broadcasted);
     }
 
-    public double value(int row, int column) {
+    double value(int row, int column) {
         return values[row][column];
     }
 

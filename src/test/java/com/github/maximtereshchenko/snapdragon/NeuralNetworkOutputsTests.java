@@ -7,69 +7,73 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
+final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
 
     @Test
-    void givenDifferentSizeInputs_whenPrediction_thenIllegalArgumentExceptionThrown() {
+    void givenDifferentSizeInputs_whenOutputs_thenIllegalArgumentExceptionThrown() {
         var neuralNetwork = neuralNetwork(
             List.of(Matrix.horizontalVector(0.1)),
             List.of(Matrix.horizontalVector(0.1))
         );
-        var tooManyInputs = Matrix.horizontalVector(0.1, 0.2);
-        assertThatThrownBy(() -> neuralNetwork.prediction(tooManyInputs))
+        var tooManyInputs = new Inputs(Matrix.horizontalVector(0.1, 0.2));
+        assertThatThrownBy(() -> neuralNetwork.outputs(tooManyInputs))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void givenSingleInputOutput_whenPrediction_thenExpectedPrediction() {
+    void givenSingleInputOutput_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(0.1)),
                 List.of(Matrix.horizontalVector(0.2))
             )
-                .prediction(Matrix.horizontalVector(0.3))
+                .outputs(new Inputs(Matrix.horizontalVector(0.3)))
         )
-            .isEqualTo(Matrix.horizontalVector(0.3 * 0.1 + 0.2));
+            .isEqualTo(new Outputs(Matrix.horizontalVector(0.3 * 0.1 + 0.2)));
     }
 
     @Test
-    void givenBatchedInputs_whenPrediction_thenExpectedPrediction() {
+    void givenBatchedInputs_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(0.1)),
                 List.of(Matrix.horizontalVector(0.2))
             )
-                .prediction(Matrix.verticalVector(0.3, 0.4))
+                .outputs(new Inputs(Matrix.verticalVector(0.3, 0.4)))
         )
-            .isEqualTo(Matrix.verticalVector(0.3 * 0.1 + 0.2, 0.4 * 0.1 + 0.2));
+            .isEqualTo(
+                new Outputs(Matrix.verticalVector(0.3 * 0.1 + 0.2, 0.4 * 0.1 + 0.2))
+            );
     }
 
     @Test
-    void givenMultipleInputs_whenPrediction_thenExpectedPrediction() {
+    void givenMultipleInputs_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.verticalVector(0.1, 0.2)),
                 List.of(Matrix.horizontalVector(0.3))
             )
-                .prediction(Matrix.horizontalVector(0.4, 0.5))
+                .outputs(new Inputs(Matrix.horizontalVector(0.4, 0.5)))
         )
-            .isEqualTo(Matrix.horizontalVector(0.4 * 0.1 + 0.5 * 0.2 + 0.3));
+            .isEqualTo(new Outputs(Matrix.horizontalVector(0.4 * 0.1 + 0.5 * 0.2 + 0.3)));
     }
 
     @Test
-    void givenMultipleOutputs_whenPrediction_thenExpectedPrediction() {
+    void givenMultipleOutputs_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(Matrix.horizontalVector(0.1, 0.2)),
                 List.of(Matrix.horizontalVector(0.3, 0.4))
             )
-                .prediction(Matrix.horizontalVector(0.5))
+                .outputs(new Inputs(Matrix.horizontalVector(0.5)))
         )
-            .isEqualTo(Matrix.horizontalVector(0.5 * 0.1 + 0.3, 0.5 * 0.2 + 0.4));
+            .isEqualTo(
+                new Outputs(Matrix.horizontalVector(0.5 * 0.1 + 0.3, 0.5 * 0.2 + 0.4))
+            );
     }
 
     @Test
-    void givenSingleNeuronHiddenLayer_whenPrediction_thenExpectedPrediction() {
+    void givenSingleNeuronHiddenLayer_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -81,13 +85,13 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.4)
                 )
             )
-                .prediction(Matrix.horizontalVector(0.5))
+                .outputs(new Inputs(Matrix.horizontalVector(0.5)))
         )
-            .isEqualTo(Matrix.horizontalVector((0.5 * 0.1 + 0.3) * 0.2 + 0.4));
+            .isEqualTo(new Outputs(Matrix.horizontalVector((0.5 * 0.1 + 0.3) * 0.2 + 0.4)));
     }
 
     @Test
-    void givenMultipleNeuronHiddenLayer_whenPrediction_thenExpectedPrediction() {
+    void givenMultipleNeuronHiddenLayer_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -99,19 +103,21 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.7)
                 )
             )
-                .prediction(Matrix.horizontalVector(0.8))
+                .outputs(new Inputs(Matrix.horizontalVector(0.8)))
         )
             .isEqualTo(
-                Matrix.horizontalVector(
-                    (0.8 * 0.1 + 0.5) * 0.3 +
-                        (0.8 * 0.2 + 0.6) * 0.4 +
-                        0.7
+                new Outputs(
+                    Matrix.horizontalVector(
+                        (0.8 * 0.1 + 0.5) * 0.3 +
+                            (0.8 * 0.2 + 0.6) * 0.4 +
+                            0.7
+                    )
                 )
             );
     }
 
     @Test
-    void givenMultipleHiddenLayers_whenPrediction_thenExpectedPrediction() {
+    void givenMultipleHiddenLayers_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
                 List.of(
@@ -125,15 +131,17 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.6)
                 )
             )
-                .prediction(Matrix.horizontalVector(0.7))
+                .outputs(new Inputs(Matrix.horizontalVector(0.7)))
         )
             .isEqualTo(
-                Matrix.horizontalVector(((0.7 * 0.1 + 0.4) * 0.2 + 0.5) * 0.3 + 0.6)
+                new Outputs(
+                    Matrix.horizontalVector(((0.7 * 0.1 + 0.4) * 0.2 + 0.5) * 0.3 + 0.6)
+                )
             );
     }
 
     @Test
-    void givenMultipleLayersMultipleNeurons_whenPrediction_thenExpectedPrediction() {
+    void givenMultipleLayersMultipleNeurons_whenPrediction_thenExpectedOutputs() {
         var neuron13 = 0.19 * 0.1 + 0.20 * 0.3 + 0.13;
         var neuron14 = 0.19 * 0.2 + 0.20 * 0.4 + 0.14;
         var neuron15 = neuron13 * 0.5 + neuron14 * 0.7 + 0.15;
@@ -151,14 +159,16 @@ final class NeuralNetworkPredictionTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.17, 0.18)
                 )
             )
-                .prediction(
-                    Matrix.horizontalVector(0.19, 0.20)
+                .outputs(
+                    new Inputs(Matrix.horizontalVector(0.19, 0.20))
                 )
         )
             .isEqualTo(
-                Matrix.horizontalVector(
-                    neuron15 * 0.9 + neuron16 * 0.11 + 0.17,
-                    neuron15 * 0.10 + neuron16 * 0.12 + 0.18
+                new Outputs(
+                    Matrix.horizontalVector(
+                        neuron15 * 0.9 + neuron16 * 0.11 + 0.17,
+                        neuron15 * 0.10 + neuron16 * 0.12 + 0.18
+                    )
                 )
             );
     }

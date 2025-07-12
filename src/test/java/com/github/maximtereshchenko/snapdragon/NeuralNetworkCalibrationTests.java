@@ -6,10 +6,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
+final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
 
     @Test
-    void givenSingleInputOutput_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenSingleInputOutput_whenCalibrated_thenCalibratedNeuralNetwork() {
         var output = 0.4 * 0.2 + 0.3;
         var outputDelta = output * output;
         assertThat(
@@ -17,11 +17,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                 List.of(Matrix.horizontalVector(0.2)),
                 List.of(Matrix.horizontalVector(0.3))
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.4),
-                    Matrix.horizontalVector(0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.4)),
+                    new Labels(Matrix.horizontalVector(0)),
                     new FakeLossFunction(),
-                    0.5
+                    new LearningRate(0.5)
                 )
         )
             .isEqualTo(
@@ -33,7 +33,7 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenBatchedInputs_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenBatchedInputs_whenCalibrated_thenCalibratedNeuralNetwork() {
         var firstOutput = 0.4 * 0.2 + 0.3;
         var secondOutput = 0.5 * 0.2 + 0.3;
         var firstOutputDelta = firstOutput * firstOutput;
@@ -43,11 +43,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                 List.of(Matrix.horizontalVector(0.2)),
                 List.of(Matrix.horizontalVector(0.3))
             )
-                .adjusted(
-                    Matrix.verticalVector(0.4, 0.5),
-                    Matrix.verticalVector(0, 0),
+                .calibrated(
+                    new Inputs(Matrix.verticalVector(0.4, 0.5)),
+                    new Labels(Matrix.verticalVector(0, 0)),
                     new FakeLossFunction(),
-                    0.6
+                    new LearningRate(0.6)
                 )
         )
             .isEqualTo(
@@ -67,7 +67,7 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleInputs_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenMultipleInputs_whenCalibrated_thenCalibratedNeuralNetwork() {
         var output = 0.7 * 0.4 + 0.8 * 0.5 + 0.6;
         var outputDelta = output * output;
         assertThat(
@@ -75,11 +75,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                 List.of(Matrix.verticalVector(0.4, 0.5)),
                 List.of(Matrix.horizontalVector(0.6))
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.7, 0.8),
-                    Matrix.horizontalVector(0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.7, 0.8)),
+                    new Labels(Matrix.horizontalVector(0)),
                     new FakeLossFunction(),
-                    0.9
+                    new LearningRate(0.9)
                 )
         )
             .isEqualTo(
@@ -98,7 +98,7 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleOutputs_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenMultipleOutputs_whenCalibrated_thenCalibratedNeuralNetwork() {
         var firstOutput = 0.5 * 0.1 + 0.3;
         var secondOutput = 0.5 * 0.2 + 0.4;
         var firstOutputDelta = firstOutput * firstOutput;
@@ -108,11 +108,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                 List.of(Matrix.horizontalVector(0.1, 0.2)),
                 List.of(Matrix.horizontalVector(0.3, 0.4))
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.5),
-                    Matrix.horizontalVector(0, 0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.5)),
+                    new Labels(Matrix.horizontalVector(0, 0)),
                     new FakeLossFunction(),
-                    0.6
+                    new LearningRate(0.6)
                 )
         )
             .isEqualTo(
@@ -134,7 +134,7 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenSingleHiddenNeuron_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenSingleHiddenNeuron_whenCalibrated_thenCalibratedNeuralNetwork() {
         var hiddenNeuronOutput = 0.5 * 0.1 + 0.3;
         var output = hiddenNeuronOutput * 0.2 + 0.4;
         var outputDelta = output * output;
@@ -150,11 +150,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.4)
                 )
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.5),
-                    Matrix.horizontalVector(0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.5)),
+                    new Labels(Matrix.horizontalVector(0)),
                     new FakeLossFunction(),
-                    0.6
+                    new LearningRate(0.6)
                 )
         )
             .isEqualTo(
@@ -172,7 +172,7 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleHiddenNeurons_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenMultipleHiddenNeurons_whenCalibrated_thenCalibratedNeuralNetwork() {
         var firstHiddenNeuronOutput = 0.9 * 0.2 + 0.6;
         var secondHiddenNeuronOutput = 0.9 * 0.3 + 0.7;
         var output = firstHiddenNeuronOutput * 0.4 + secondHiddenNeuronOutput * 0.5 + 0.8;
@@ -190,11 +190,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.8)
                 )
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.9),
-                    Matrix.horizontalVector(0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.9)),
+                    new Labels(Matrix.horizontalVector(0)),
                     new FakeLossFunction(),
-                    1.0
+                    new LearningRate(1.0)
                 )
         )
             .isEqualTo(
@@ -221,13 +221,14 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleHiddenLayers_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenMultipleHiddenLayers_whenCalibrated_thenCalibratedNeuralNetwork() {
         var firstHiddenLayerNeuronOutput = 0.7 * 0.1 + 0.4;
         var secondHiddenLayerNeuronOutput = firstHiddenLayerNeuronOutput * 0.2 + 0.5;
         var output = secondHiddenLayerNeuronOutput * 0.3 + 0.6;
         var outputDelta = output * output;
         var secondHiddenLayerNeuronDelta = 0.3 * outputDelta * secondHiddenLayerNeuronOutput;
-        var firstHiddenLayerNeuronDelta = 0.2 * secondHiddenLayerNeuronDelta * firstHiddenLayerNeuronOutput;
+        var firstHiddenLayerNeuronDelta =
+            0.2 * secondHiddenLayerNeuronDelta * firstHiddenLayerNeuronOutput;
         assertThat(
             neuralNetwork(
                 List.of(
@@ -241,11 +242,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.6)
                 )
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.7),
-                    Matrix.horizontalVector(0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.7)),
+                    new Labels(Matrix.horizontalVector(0)),
                     new FakeLossFunction(),
-                    0.8
+                    new LearningRate(0.8)
                 )
         )
             .isEqualTo(
@@ -265,7 +266,7 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
     }
 
     @Test
-    void givenMultipleLayersMultipleNeurons_whenAdjusted_thenAdjustedNeuralNetwork() {
+    void givenMultipleLayersMultipleNeurons_whenCalibrated_thenCalibratedNeuralNetwork() {
         var output13 = 0.21 * 0.3 + 0.22 * 0.5 + 0.15;
         var output14 = 0.21 * 0.4 + 0.22 * 0.6 + 0.16;
         var output15 = output13 * 0.7 + output14 * 0.9 + 0.17;
@@ -291,11 +292,11 @@ final class NeuralNetworkAdjustedTests extends BaseNeuralNetworkTest {
                     Matrix.horizontalVector(0.19, 0.20)
                 )
             )
-                .adjusted(
-                    Matrix.horizontalVector(0.21, 0.22),
-                    Matrix.horizontalVector(0, 0),
+                .calibrated(
+                    new Inputs(Matrix.horizontalVector(0.21, 0.22)),
+                    new Labels(Matrix.horizontalVector(0, 0)),
                     new FakeLossFunction(),
-                    0.23
+                    new LearningRate(0.23)
                 )
         )
             .isEqualTo(

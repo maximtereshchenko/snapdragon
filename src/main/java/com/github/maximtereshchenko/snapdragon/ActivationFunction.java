@@ -1,6 +1,6 @@
 package com.github.maximtereshchenko.snapdragon;
 
-public interface ActivationFunction {
+interface ActivationFunction {
 
     Matrix apply(Matrix matrix);
 

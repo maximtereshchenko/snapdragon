@@ -1,128 +1,40 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public final class MultiLayerPerceptron implements NeuralNetwork {
+final class MultiLayerPerceptron implements NeuralNetwork {
 
-    private final List<Matrix> weights;
-    private final List<Matrix> biases;
-    private final ActivationFunction hiddenLayerActivationFunction;
-    private final ActivationFunction outputLayerActivationFunction;
+    private final NetworkLayers networkLayers;
+    private final NetworkWeights networkWeights;
 
-    private MultiLayerPerceptron(
-        List<Matrix> weights,
-        List<Matrix> biases,
-        ActivationFunction hiddenLayerActivationFunction,
-        ActivationFunction outputLayerActivationFunction
-    ) {
-        this.weights = weights;
-        this.biases = biases;
-        this.hiddenLayerActivationFunction = hiddenLayerActivationFunction;
-        this.outputLayerActivationFunction = outputLayerActivationFunction;
-    }
-
-    public static NeuralNetwork from(
-        List<Matrix> weights,
-        List<Matrix> biases,
-        ActivationFunction hiddenLayerActivationFunction,
-        ActivationFunction outputLayerActivationFunction
-    ) {
-        if (weights.isEmpty() || weights.size() != biases.size()) {
-            throw new IllegalArgumentException();
-        }
-        for (var i = 0; i < weights.size(); i++) {
-            var weightMatrix = weights.get(i);
-            if (
-                weightMatrix.columns() != biases.get(i).columns() ||
-                    i > 0 && weightMatrix.rows() != biases.get(i - 1).columns()
-            ) {
-                throw new IllegalArgumentException();
-            }
-        }
-        return new MultiLayerPerceptron(
-            weights,
-            biases,
-            hiddenLayerActivationFunction,
-            outputLayerActivationFunction
-        );
+    MultiLayerPerceptron(NetworkLayers networkLayers, NetworkWeights networkWeights) {
+        this.networkLayers = networkLayers;
+        this.networkWeights = networkWeights;
     }
 
     @Override
-    public Matrix prediction(Matrix inputs) {
-        return outputs(inputs).getLast();
+    public Outputs outputs(Inputs inputs) {
+        return networkOutputs(inputs).element(networkLayers.outputLayer().index());
     }
 
     @Override
-    public NeuralNetwork adjusted(
-        Matrix inputs,
-        Matrix labels,
+    public NeuralNetwork calibrated(
+        Inputs inputs,
+        Labels labels,
         LossFunction lossFunction,
-        double learningRate
+        LearningRate learningRate
     ) {
-        var outputs = outputs(inputs);
-        var deltas = new Matrix[biases.size()];
-        deltas[deltas.length - 1] = lossFunction.derivative(outputs.getLast(), labels)
-                                        .combined(
-                                            outputLayerActivationFunction.derivative(outputs.getLast()),
-                                            (a, b) -> a * b
-                                        );
-        for (var i = biases.size() - 2; i >= 0; i--) {
-            var nextDeltas = deltas[i + 1];
-            var thisWeights = weights.get(i + 1);
-            var thisWeightsTransposed = thisWeights.transposed();
-            var product = nextDeltas.product(thisWeightsTransposed);
-            var derivative = hiddenLayerActivationFunction.derivative(outputs.get(i + 1));
-            deltas[i] = product
-                            .combined(
-                                derivative,
-                                (a, b) -> a * b
-                            );
-        }
-        var adjustedWeights = new ArrayList<Matrix>();
-        for (var i = 0; i < weights.size(); i++) {
-            adjustedWeights.add(
-                weights.get(i)
-                    .combined(
-                        outputs.get(i)
-                            .transposed()
-                            .product(deltas[i])
-                            .applied(value -> value / inputs.rows())
-                            .applied(value -> learningRate * value),
-                        (a, b) -> a - b
-                    )
-            );
-        }
-        var adjustedBiases = new ArrayList<Matrix>();
-        for (var i = 0; i < biases.size(); i++) {
-            var delta = deltas[i];
-            var vector = new double[delta.columns()];
-            for (var row = 0; row < delta.rows(); row++) {
-                for (var column = 0; column < delta.columns(); column++) {
-                    vector[column] += delta.value(row, column);
-                }
-            }
-            adjustedBiases.add(
-                biases.get(i)
-                    .combined(
-                        Matrix.horizontalVector(vector)
-                            .applied(value -> learningRate * value / inputs.rows()),
-                        (a, b) -> a - b
-                    )
-            );
-        }
-        return MultiLayerPerceptron.from(
-            adjustedWeights,
-            adjustedBiases,
-            hiddenLayerActivationFunction,
-            outputLayerActivationFunction
+        var outputs = networkOutputs(inputs);
+        var deltas = deltas(outputs, lossFunction, labels);
+        return new MultiLayerPerceptron(
+            networkLayers.calibrated(deltas, learningRate),
+            networkWeights.calibrated(outputs, deltas, learningRate)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(weights, biases, hiddenLayerActivationFunction, outputLayerActivationFunction);
+        return Objects.hash(networkLayers, networkWeights);
     }
 
     @Override
@@ -131,51 +43,51 @@ public final class MultiLayerPerceptron implements NeuralNetwork {
             return true;
         }
         return object instanceof MultiLayerPerceptron that &&
-                   Objects.equals(weights, that.weights) &&
-                   Objects.equals(biases, that.biases) &&
-                   Objects.equals(hiddenLayerActivationFunction, that.hiddenLayerActivationFunction) &&
-                   Objects.equals(outputLayerActivationFunction, that.outputLayerActivationFunction);
+                   Objects.equals(networkLayers, that.networkLayers) &&
+                   Objects.equals(networkWeights, that.networkWeights);
     }
 
     @Override
     public String toString() {
-        return "NeuralNetwork{" +
-                   "weights=" + weights +
-                   ", biases=" + biases +
-                   ", hiddenLayerActivationFunction=" + hiddenLayerActivationFunction +
-                   ", outputLayerActivationFunction=" + outputLayerActivationFunction +
+        return "MultiLayerPerceptron{" +
+                   "networkLayers=" + networkLayers +
+                   ", networkWeights=" + networkWeights +
                    '}';
     }
 
-    private List<Matrix> outputs(Matrix inputs) {
-        if (weights.getFirst().rows() != inputs.columns()) {
-            throw new IllegalArgumentException();
-        }
-        var outputs = new ArrayList<Matrix>();
-        outputs.add(inputs);
-        for (var i = 0; i < weights.size(); i++) {
-            var weightedSums = outputs.getLast().product(weights.get(i));
-            outputs.add(
-                activationFunction(i)
-                    .apply(
-                        weightedSums.combined(
-                            biases.get(i)
-                                .broadcasted(
-                                    weightedSums.rows(),
-                                    weightedSums.columns()
-                                ),
-                            Double::sum
-                        )
-                    )
-            );
-        }
-        return outputs;
+    private LayerMap<Outputs> networkOutputs(Inputs inputs) {
+        return networkLayers.forwardPropagationSegments(networkWeights)
+                   .stream()
+                   .reduce(
+                       new LayerMap<>(
+                           networkLayers.inputLayer().index(),
+                           networkLayers.inputLayer().outputs(inputs)
+                       ),
+                       (outputs, segment) -> outputs.with(
+                           segment.participant().index(),
+                           segment.outputs(outputs)
+                       ),
+                       (a, b) -> a
+                   );
     }
 
-    private ActivationFunction activationFunction(int index) {
-        if (index == weights.size() - 1) {
-            return outputLayerActivationFunction;
-        }
-        return hiddenLayerActivationFunction;
+    private LayerMap<Deltas> deltas(
+        LayerMap<Outputs> outputs,
+        LossFunction lossFunction,
+        Labels labels
+    ) {
+        return networkLayers.backwardPropagationSegments(networkWeights)
+                   .stream()
+                   .reduce(
+                       new LayerMap<>(
+                           networkLayers.outputLayer().index(),
+                           networkLayers.outputLayer().deltas(outputs, lossFunction, labels)
+                       ),
+                       (deltas, segment) -> deltas.with(
+                           segment.participant().index(),
+                           segment.deltas(deltas, outputs)
+                       ),
+                       (a, b) -> a
+                   );
     }
 }

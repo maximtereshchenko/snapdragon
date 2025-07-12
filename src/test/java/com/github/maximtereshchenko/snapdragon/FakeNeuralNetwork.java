@@ -17,16 +17,16 @@ final class FakeNeuralNetwork implements NeuralNetwork {
     }
 
     @Override
-    public Matrix prediction(Matrix inputs) {
-        return inputs;
+    public Outputs outputs(Inputs inputs) {
+        return new Outputs(inputs.matrix());
     }
 
     @Override
-    public NeuralNetwork adjusted(
-        Matrix inputs,
-        Matrix labels,
+    public NeuralNetwork calibrated(
+        Inputs inputs,
+        Labels labels,
         LossFunction lossFunction,
-        double learningRate
+        LearningRate learningRate
     ) {
         return new FakeNeuralNetwork(generation + 1, attempts++);
     }

@@ -1,13 +1,13 @@
 package com.github.maximtereshchenko.snapdragon;
 
-public interface NeuralNetwork {
+interface NeuralNetwork {
 
-    Matrix prediction(Matrix inputs);
+    Outputs outputs(Inputs inputs);
 
-    NeuralNetwork adjusted(
-        Matrix inputs,
-        Matrix labels,
+    NeuralNetwork calibrated(
+        Inputs inputs,
+        Labels labels,
         LossFunction lossFunction,
-        double learningRate
+        LearningRate learningRate
     );
 }

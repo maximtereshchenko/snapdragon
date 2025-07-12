@@ -6,6 +6,12 @@ abstract class BaseNeuralNetworkTest {
 
     final NeuralNetwork neuralNetwork(List<Matrix> weights, List<Matrix> biases) {
         var activationFunction = new FakeActivationFunction();
-        return MultiLayerPerceptron.from(weights, biases, activationFunction, activationFunction);
+        return new NeuralNetworkFactory()
+                   .neuralNetwork(
+                       weights,
+                       biases,
+                       activationFunction,
+                       activationFunction
+                   );
     }
 }

@@ -1,6 +1,6 @@
 package com.github.maximtereshchenko.snapdragon;
 
-public interface LossFunction {
+interface LossFunction {
 
     Matrix loss(Matrix outputs, Matrix labels);
 
