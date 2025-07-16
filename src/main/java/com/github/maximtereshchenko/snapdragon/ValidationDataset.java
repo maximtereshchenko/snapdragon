@@ -2,9 +2,9 @@ package com.github.maximtereshchenko.snapdragon;
 
 import java.util.List;
 
-final class ControlDataset extends Dataset {
+final class ValidationDataset extends Dataset {
 
-    ControlDataset(List<? extends LabeledSample> original) {
+    ValidationDataset(List<? extends LabeledSample> original) {
         super(original);
     }
 

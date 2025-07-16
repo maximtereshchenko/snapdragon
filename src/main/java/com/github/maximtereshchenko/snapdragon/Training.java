@@ -1,9 +1,11 @@
 package com.github.maximtereshchenko.snapdragon;
 
+import java.util.ArrayList;
+
 final class Training {
 
     private final TrainingDataset trainingDataset;
-    private final ControlDataset controlDataset;
+    private final ValidationDataset validationDataset;
     private final LossFunction lossFunction;
     private final NeuralNetwork neuralNetwork;
     private final LearningRate learningRate;
@@ -12,7 +14,7 @@ final class Training {
 
     Training(
         TrainingDataset trainingDataset,
-        ControlDataset controlDataset,
+        ValidationDataset validationDataset,
         LossFunction lossFunction,
         NeuralNetwork neuralNetwork,
         LearningRate learningRate,
@@ -20,7 +22,7 @@ final class Training {
         int maxEpochs
     ) {
         this.trainingDataset = trainingDataset;
-        this.controlDataset = controlDataset;
+        this.validationDataset = validationDataset;
         this.lossFunction = lossFunction;
         this.neuralNetwork = neuralNetwork;
         this.learningRate = learningRate;
@@ -28,21 +30,46 @@ final class Training {
         this.maxEpochs = maxEpochs;
     }
 
-    NeuralNetwork trainedNeuralNetwork() {
+    CompletedTraining completedTraining() {
         var current = new Epoch(
             maxEpochs,
             trainingDataset,
-            controlDataset,
+            validationDataset,
             lossFunction,
             neuralNetwork,
             learningRate,
             patience
         );
+        var trainingStatistics = new ArrayList<EpochTrainingStatistics>();
+        var validationStatistics = new ArrayList<EpochValidationStatistics>();
         while (true) {
             switch (current.trainingResult()) {
-                case NextEpoch(var next) -> current = next;
-                case TrainedNeuralNetwork(var trained) -> {
-                    return trained;
+                case NextEpoch(
+                    var next,
+                    var epochTrainingStatistics,
+                    var epochValidationStatistics
+                ) -> {
+                    current = next;
+                    trainingStatistics.add(epochTrainingStatistics);
+                    validationStatistics.add(epochValidationStatistics);
+                }
+                case EarlyStop(
+                    var trained,
+                    var epochTrainingStatistics,
+                    var epochValidationStatistics
+                ) -> {
+                    trainingStatistics.add(epochTrainingStatistics);
+                    validationStatistics.add(epochValidationStatistics);
+                    return new CompletedTraining(
+                        trained,
+                        new Statistics(trainingStatistics, validationStatistics)
+                    );
+                }
+                case End(var trained) -> {
+                    return new CompletedTraining(
+                        trained,
+                        new Statistics(trainingStatistics, validationStatistics)
+                    );
                 }
             }
         }

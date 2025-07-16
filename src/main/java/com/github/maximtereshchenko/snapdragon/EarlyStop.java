@@ -1,7 +1,7 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record NextEpoch(
-    Epoch epoch,
+record EarlyStop(
+    NeuralNetwork neuralNetwork,
     EpochTrainingStatistics epochTrainingStatistics,
     EpochValidationStatistics epochValidationStatistics
 ) implements TrainingResult {}
