@@ -1,6 +1,18 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record FakeNeuralNetwork() implements NeuralNetwork {
+import java.util.Objects;
+
+final class FakeNeuralNetwork implements NeuralNetwork {
+
+    private final int generation;
+
+    FakeNeuralNetwork(int generation) {
+        this.generation = generation;
+    }
+
+    FakeNeuralNetwork() {
+        this(0);
+    }
 
     @Override
     public Outputs outputs(Inputs inputs) {
@@ -15,5 +27,19 @@ record FakeNeuralNetwork() implements NeuralNetwork {
         LearningRate learningRate
     ) {
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(generation);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        return object instanceof FakeNeuralNetwork that &&
+                   generation == that.generation;
     }
 }

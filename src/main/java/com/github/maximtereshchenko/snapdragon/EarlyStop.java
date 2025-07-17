@@ -1,7 +1,4 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record EarlyStop(
-    NeuralNetwork neuralNetwork,
-    EpochTrainingStatistics epochTrainingStatistics,
-    EpochValidationStatistics epochValidationStatistics
-) implements TrainingResult {}
+record EarlyStop(NeuralNetwork neuralNetwork, EpochStatistics epochStatistics)
+    implements TrainingResult {}

@@ -1,7 +1,3 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record NextEpoch(
-    Epoch epoch,
-    EpochTrainingStatistics epochTrainingStatistics,
-    EpochValidationStatistics epochValidationStatistics
-) implements TrainingResult {}
+record NextEpoch(Epoch epoch, EpochStatistics epochStatistics) implements TrainingResult {}

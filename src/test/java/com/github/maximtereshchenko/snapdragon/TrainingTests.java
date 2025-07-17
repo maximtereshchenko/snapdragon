@@ -20,12 +20,14 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.1), 1.0),
-                            new EpochTrainingStatistics(List.of(0.2), 1.0)
-                        ),
-                        List.of(
-                            new EpochValidationStatistics(0.5, 1.0),
-                            new EpochValidationStatistics(0.5, 1.0)
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.1), 1.0),
+                                new NeuralNetworkStatistics(List.of(0.5), 1.0)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.2), 1.0),
+                                new NeuralNetworkStatistics(List.of(0.5), 1.0)
+                            )
                         )
                     )
                 )
@@ -40,14 +42,18 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.4), 1),
-                            new EpochTrainingStatistics(List.of(0.2), 1),
-                            new EpochTrainingStatistics(List.of(0.1), 1)
-                        ),
-                        List.of(
-                            new EpochValidationStatistics(0.3, 1),
-                            new EpochValidationStatistics(0.1, 1),
-                            new EpochValidationStatistics(0.1, 1)
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.4), 1),
+                                new NeuralNetworkStatistics(List.of(0.3), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.2), 1),
+                                new NeuralNetworkStatistics(List.of(0.1), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.1), 1),
+                                new NeuralNetworkStatistics(List.of(0.1), 1)
+                            )
                         )
                     )
                 )
@@ -64,16 +70,22 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.6), 1),
-                            new EpochTrainingStatistics(List.of(0.4), 1),
-                            new EpochTrainingStatistics(List.of(0.2), 1),
-                            new EpochTrainingStatistics(List.of(0.1), 1)
-                        ),
-                        List.of(
-                            new EpochValidationStatistics(0.5, 1),
-                            new EpochValidationStatistics(0.3, 1),
-                            new EpochValidationStatistics(0.3, 1),
-                            new EpochValidationStatistics(0.3, 1)
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.6), 1),
+                                new NeuralNetworkStatistics(List.of(0.5), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.4), 1),
+                                new NeuralNetworkStatistics(List.of(0.3), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.2), 1),
+                                new NeuralNetworkStatistics(List.of(0.3), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.1), 1),
+                                new NeuralNetworkStatistics(List.of(0.3), 1)
+                            )
                         )
                     )
                 )
@@ -88,14 +100,18 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.6), 1),
-                            new EpochTrainingStatistics(List.of(0.4), 1),
-                            new EpochTrainingStatistics(List.of(0.2), 1)
-                        ),
-                        List.of(
-                            new EpochValidationStatistics(0.5, 1),
-                            new EpochValidationStatistics(0.3, 1),
-                            new EpochValidationStatistics(0.1, 1)
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.6), 1),
+                                new NeuralNetworkStatistics(List.of(0.5), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.4), 1),
+                                new NeuralNetworkStatistics(List.of(0.3), 1)
+                            ),
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.2), 1),
+                                new NeuralNetworkStatistics(List.of(0.1), 1)
+                            )
                         )
                     )
                 )
@@ -115,8 +131,7 @@ final class TrainingTests {
                 4,
                 0,
                 1,
-                0.1,
-                0.1
+                0.1, 0.1
             )
         )
             .isEqualTo(
@@ -124,10 +139,10 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.1), 0.25)
-                        ),
-                        List.of(
-                            new EpochValidationStatistics(0.1, 0.25)
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.1), 0.25),
+                                new NeuralNetworkStatistics(List.of(0.1), 0.25)
+                            )
                         )
                     )
                 )
@@ -148,15 +163,19 @@ final class TrainingTests {
                 2,
                 0,
                 1,
-                0.3, 0.2, 0.1, 0.4, 0.3, 0.2
+                0.6, 0.5, 0.4, 0.3, 0.2, 0.1
             )
         )
             .isEqualTo(
                 new CompletedTraining(
                     neuralNetwork,
                     new Statistics(
-                        List.of(new EpochTrainingStatistics(List.of(0.3, 0.2, 0.1), 1)),
-                        List.of(new EpochValidationStatistics(0.3, 1))
+                        List.of(
+                            new EpochStatistics(
+                                new NeuralNetworkStatistics(List.of(0.6, 0.5, 0.4), 1),
+                                new NeuralNetworkStatistics(List.of(0.3, 0.2, 0.1), 1)
+                            )
+                        )
                     )
                 )
             );

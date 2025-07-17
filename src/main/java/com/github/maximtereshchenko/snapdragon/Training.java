@@ -40,36 +40,19 @@ final class Training {
             learningRate,
             patience
         );
-        var trainingStatistics = new ArrayList<EpochTrainingStatistics>();
-        var validationStatistics = new ArrayList<EpochValidationStatistics>();
+        var epochStatistics = new ArrayList<EpochStatistics>();
         while (true) {
             switch (current.trainingResult()) {
-                case NextEpoch(
-                    var next,
-                    var epochTrainingStatistics,
-                    var epochValidationStatistics
-                ) -> {
+                case NextEpoch(var next, var statistics) -> {
+                    epochStatistics.add(statistics);
                     current = next;
-                    trainingStatistics.add(epochTrainingStatistics);
-                    validationStatistics.add(epochValidationStatistics);
                 }
-                case EarlyStop(
-                    var trained,
-                    var epochTrainingStatistics,
-                    var epochValidationStatistics
-                ) -> {
-                    trainingStatistics.add(epochTrainingStatistics);
-                    validationStatistics.add(epochValidationStatistics);
-                    return new CompletedTraining(
-                        trained,
-                        new Statistics(trainingStatistics, validationStatistics)
-                    );
+                case EarlyStop(var trained, var statistics) -> {
+                    epochStatistics.add(statistics);
+                    return new CompletedTraining(trained, new Statistics(epochStatistics));
                 }
                 case End(var trained) -> {
-                    return new CompletedTraining(
-                        trained,
-                        new Statistics(trainingStatistics, validationStatistics)
-                    );
+                    return new CompletedTraining(trained, new Statistics(epochStatistics));
                 }
             }
         }
