@@ -1,15 +1,16 @@
 package com.github.maximtereshchenko.snapdragon;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 final class ValidationDataset extends Dataset {
 
-    ValidationDataset(List<? extends LabeledSample> original) {
-        super(original);
+    ValidationDataset(Supplier<List<LabeledSample>> supplier, int batchSize) {
+        super(supplier, batchSize);
     }
 
     @Override
-    List<LabeledSample> labeledSamples(List<? extends LabeledSample> original) {
-        return List.copyOf(original);
+    List<LabeledSample> labeledSamples(Supplier<List<LabeledSample>> supplier) {
+        return supplier.get();
     }
 }

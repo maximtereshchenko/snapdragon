@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,14 +40,14 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.4), 1.0),
-                            new EpochTrainingStatistics(List.of(0.2), 1.0),
-                            new EpochTrainingStatistics(List.of(0.1), 1.0)
+                            new EpochTrainingStatistics(List.of(0.4), 1),
+                            new EpochTrainingStatistics(List.of(0.2), 1),
+                            new EpochTrainingStatistics(List.of(0.1), 1)
                         ),
                         List.of(
-                            new EpochValidationStatistics(0.3, 1.0),
-                            new EpochValidationStatistics(0.1, 1.0),
-                            new EpochValidationStatistics(0.1, 1.0)
+                            new EpochValidationStatistics(0.3, 1),
+                            new EpochValidationStatistics(0.1, 1),
+                            new EpochValidationStatistics(0.1, 1)
                         )
                     )
                 )
@@ -63,16 +64,16 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.6), 1.0),
-                            new EpochTrainingStatistics(List.of(0.4), 1.0),
-                            new EpochTrainingStatistics(List.of(0.2), 1.0),
-                            new EpochTrainingStatistics(List.of(0.1), 1.0)
+                            new EpochTrainingStatistics(List.of(0.6), 1),
+                            new EpochTrainingStatistics(List.of(0.4), 1),
+                            new EpochTrainingStatistics(List.of(0.2), 1),
+                            new EpochTrainingStatistics(List.of(0.1), 1)
                         ),
                         List.of(
-                            new EpochValidationStatistics(0.5, 1.0),
-                            new EpochValidationStatistics(0.3, 1.0),
-                            new EpochValidationStatistics(0.3, 1.0),
-                            new EpochValidationStatistics(0.3, 1.0)
+                            new EpochValidationStatistics(0.5, 1),
+                            new EpochValidationStatistics(0.3, 1),
+                            new EpochValidationStatistics(0.3, 1),
+                            new EpochValidationStatistics(0.3, 1)
                         )
                     )
                 )
@@ -87,14 +88,14 @@ final class TrainingTests {
                     neuralNetwork,
                     new Statistics(
                         List.of(
-                            new EpochTrainingStatistics(List.of(0.6), 1.0),
-                            new EpochTrainingStatistics(List.of(0.4), 1.0),
-                            new EpochTrainingStatistics(List.of(0.2), 1.0)
+                            new EpochTrainingStatistics(List.of(0.6), 1),
+                            new EpochTrainingStatistics(List.of(0.4), 1),
+                            new EpochTrainingStatistics(List.of(0.2), 1)
                         ),
                         List.of(
-                            new EpochValidationStatistics(0.5, 1.0),
-                            new EpochValidationStatistics(0.3, 1.0),
-                            new EpochValidationStatistics(0.1, 1.0)
+                            new EpochValidationStatistics(0.5, 1),
+                            new EpochValidationStatistics(0.3, 1),
+                            new EpochValidationStatistics(0.1, 1)
                         )
                     )
                 )
@@ -111,6 +112,7 @@ final class TrainingTests {
                     new double[]{0.6, 0.4}, new double[]{0.0, 1.0},
                     new double[]{0.4, 0.6}, new double[]{0.0, 1.0}
                 ),
+                4,
                 0,
                 1,
                 0.1,
@@ -132,30 +134,62 @@ final class TrainingTests {
             );
     }
 
+    @Test
+    void givenBatchedTrainingDataset_whenCompletedTraining_thenTrainingLossesPerBatch() {
+        assertThat(
+            completedTraining(
+                Map.of(
+                    new double[]{0.1}, new double[]{0.1},
+                    new double[]{0.2}, new double[]{0.2},
+                    new double[]{0.3}, new double[]{0.3},
+                    new double[]{0.4}, new double[]{0.4},
+                    new double[]{0.5}, new double[]{0.5}
+                ),
+                2,
+                0,
+                1,
+                0.3, 0.2, 0.1, 0.4, 0.3, 0.2
+            )
+        )
+            .isEqualTo(
+                new CompletedTraining(
+                    neuralNetwork,
+                    new Statistics(
+                        List.of(new EpochTrainingStatistics(List.of(0.3, 0.2, 0.1), 1)),
+                        List.of(new EpochValidationStatistics(0.3, 1))
+                    )
+                )
+            );
+    }
+
     private CompletedTraining completedTraining(
         int patience,
         int epochs,
         Double... losses
     ) {
         var doubles = new double[]{0};
-        return completedTraining(Map.of(doubles, doubles), patience, epochs, losses);
+        return completedTraining(Map.of(doubles, doubles), 1, patience, epochs, losses);
     }
 
     private CompletedTraining completedTraining(
         Map<double[], double[]> samples,
+        int batchSize,
         int patience,
         int epochs,
         Double... losses
     ) {
         var labeledSamples = samples.entrySet()
                                  .stream()
-                                 .map(entry ->
-                                          new StaticLabeledSample(entry.getKey(), entry.getValue())
+                                 .<LabeledSample>map(entry ->
+                                                         new StaticLabeledSample(
+                                                             entry.getKey(),
+                                                             entry.getValue()
+                                                         )
                                  )
                                  .toList();
         return new Training(
-            new TrainingDataset(labeledSamples),
-            new ValidationDataset(labeledSamples),
+            new TrainingDataset(() -> labeledSamples, batchSize, new Random(0)),
+            new ValidationDataset(() -> labeledSamples, batchSize),
             new FakeLossFunction(losses),
             neuralNetwork,
             new LearningRate(1),

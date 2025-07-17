@@ -1,6 +1,6 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import java.util.List;
+import java.util.ArrayList;
 
 final class Epoch {
 
@@ -58,22 +58,54 @@ final class Epoch {
         if (current == max) {
             return new End(neuralNetwork);
         }
-        var trainingSamples = trainingDataset.labeledSamples();
-        var trainingOutputs = neuralNetwork.outputs(trainingSamples.inputs());
-        var trainingLoss = loss(trainingOutputs, trainingSamples.labels());
-        var calibrated = calibrated(trainingSamples);
-        var validationSamples = validationDataset.labeledSamples();
-        var validationOutputs = calibrated.outputs(validationSamples.inputs());
-        var validationLoss = loss(validationOutputs, validationSamples.labels());
+
+        var calibrated = neuralNetwork;
+        var trainingSamples = trainingDataset.batchedLabeledSamples();
+        var trainingLossesPerBatch = new ArrayList<Double>();
+        var trainingAccuracySum = 0.0;
+        var trainingBatches = 0;
+        while (trainingSamples.hasNext()) {
+            var batch = trainingSamples.next();
+            var outputs = calibrated.outputs(batch.inputs());
+            trainingLossesPerBatch.add(loss(outputs, batch.labels()));
+            trainingAccuracySum += accuracy(outputs, batch.labels());
+            calibrated = neuralNetwork.calibrated(
+                batch.inputs(),
+                batch.labels(),
+                lossFunction,
+                learningRate
+            );
+            trainingBatches++;
+        }
+        if (trainingBatches == 0) {
+            throw new IllegalStateException();
+        }
         var epochTrainingStatistics = new EpochTrainingStatistics(
-            List.of(trainingLoss),
-            accuracy(trainingOutputs, trainingSamples.labels())
+            trainingLossesPerBatch,
+            trainingAccuracySum / trainingBatches
         );
+
+        var validationSamples = validationDataset.batchedLabeledSamples();
+        var validationLossesPerBatch = new ArrayList<Double>();
+        var validationAccuracySum = 0.0;
+        var validationBatches = 0;
+        while (validationSamples.hasNext()) {
+            var batch = validationSamples.next();
+            var outputs = calibrated.outputs(batch.inputs());
+            validationLossesPerBatch.add(loss(outputs, batch.labels()));
+            validationAccuracySum += accuracy(outputs, batch.labels());
+            validationBatches++;
+        }
+        if (validationBatches == 0) {
+            throw new IllegalStateException();
+        }
         var epochValidationStatistics = new EpochValidationStatistics(
-            validationLoss,
-            accuracy(validationOutputs, validationSamples.labels())
+            validationLossesPerBatch.stream()
+                .mapToDouble(loss -> loss)
+                .sum() / validationBatches,
+            validationAccuracySum / validationBatches
         );
-        return switch (patience.next(validationLoss)) {
+        return switch (patience.next(epochValidationStatistics.loss())) {
             case Improvement(var next) -> new NextEpoch(
                 new Epoch(
                     current + 1,
@@ -141,14 +173,5 @@ final class Epoch {
                    .broadcasted(1, loss.rows())
                    .product(loss)
                    .value(0, 0);
-    }
-
-    private NeuralNetwork calibrated(LabeledSamples trainingSamples) {
-        return neuralNetwork.calibrated(
-            trainingSamples.inputs(),
-            trainingSamples.labels(),
-            lossFunction,
-            learningRate
-        );
     }
 }

@@ -3,17 +3,26 @@ package com.github.maximtereshchenko.snapdragon;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.function.Supplier;
 
 final class TrainingDataset extends Dataset {
 
-    TrainingDataset(List<? extends LabeledSample> original) {
-        super(original);
+    private final Random random;
+
+    TrainingDataset(
+        Supplier<List<LabeledSample>> supplier,
+        int batchSize,
+        Random random
+    ) {
+        super(supplier, batchSize);
+        this.random = random;
     }
 
     @Override
-    List<LabeledSample> labeledSamples(List<? extends LabeledSample> original) {
-        var copy = new ArrayList<LabeledSample>(original);
-        Collections.shuffle(copy);
-        return copy;
+    List<LabeledSample> labeledSamples(Supplier<List<LabeledSample>> supplier) {
+        var labeledSamples = new ArrayList<>(supplier.get());
+        Collections.shuffle(labeledSamples, random);
+        return labeledSamples;
     }
 }
