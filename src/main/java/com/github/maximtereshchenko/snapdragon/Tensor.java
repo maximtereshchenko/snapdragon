@@ -35,6 +35,13 @@ final class Tensor {
         return from(List.of(values.length, 1), values);
     }
 
+    static Tensor from(List<Integer> shape, ToDoubleFunction<List<Integer>> function) {
+        return from(
+            new Shape(Index.from(shape)),
+            index -> function.applyAsDouble(index.components())
+        );
+    }
+
     private static int offset(Shape shape, Index index) {
         var offset = 0;
         for (var current = 0; current < index.size(); current++) {
@@ -85,6 +92,26 @@ final class Tensor {
                    Objects.equals(trees, tensor.trees);
     }
 
+    double value(Integer... index) {
+        return value(List.of(index));
+    }
+
+    double value(List<Integer> index) {
+        return value(Index.from(index));
+    }
+
+    List<Integer> shape() {
+        var shape = new ArrayList<Integer>();
+        for (
+            Tree current = new Branch(this);
+            current instanceof Branch(var tensor);
+            current = tensor.trees.getFirst()
+        ) {
+            shape.add(tensor.trees.size());
+        }
+        return shape;
+    }
+
     Tensor sum(Tensor tensor) {
         return combined(tensor, Double::sum);
     }
@@ -101,21 +128,25 @@ final class Tensor {
         return combined(tensor, (first, second) -> first / second);
     }
 
-    Tensor broadcasted(List<Integer> sizes) {
-        var shape = shape();
+    Tensor broadcasted(Integer... shape) {
+        return broadcasted(List.of(shape));
+    }
+
+    Tensor broadcasted(List<Integer> shape) {
+        var shapeInstance = shapeInstance();
         return Tensor.from(
-            shape.broadcasted(sizes),
-            index -> value(shape.indexFromBroadcasted(index))
+            shapeInstance.broadcasted(shape),
+            index -> value(shapeInstance.indexFromBroadcasted(index))
         );
     }
 
     Tensor transposed() {
-        return Tensor.from(shape().transposed(), index -> value(index.transposed()));
+        return Tensor.from(shapeInstance().transposed(), index -> value(index.transposed()));
     }
 
     Tensor contracted(Tensor tensor) {
-        var shape = shape();
-        var contracted = shape.contracted(tensor.shape());
+        var shape = shapeInstance();
+        var contracted = shape.contracted(tensor.shapeInstance());
         return Tensor.from(
             contracted,
             index -> IntStream.range(0, shape.last())
@@ -126,8 +157,8 @@ final class Tensor {
     }
 
     Tensor batchContracted(Tensor tensor) {
-        var shape = shape();
-        if (!shape.isBatchContractable(tensor.shape())) {
+        var shape = shapeInstance();
+        if (!shape.isBatchContractable(tensor.shapeInstance())) {
             throw new IllegalArgumentException();
         }
         var contractedTrees = new ArrayList<Tree>();
@@ -147,8 +178,8 @@ final class Tensor {
     }
 
     private Tensor combined(Tensor tensor, DoubleBinaryOperator operator) {
-        var shape = shape();
-        if (!shape.equals(tensor.shape())) {
+        var shape = shapeInstance();
+        if (!shape.equals(tensor.shapeInstance())) {
             throw new IllegalArgumentException();
         }
         return Tensor.from(
@@ -175,16 +206,8 @@ final class Tensor {
         return tensor.tree(index.decapitated());
     }
 
-    private Shape shape() {
-        var shape = new ArrayList<Integer>();
-        for (
-            Tree current = new Branch(this);
-            current instanceof Branch(var tensor);
-            current = tensor.trees.getFirst()
-        ) {
-            shape.add(tensor.trees.size());
-        }
-        return new Shape(Index.from(shape));
+    private Shape shapeInstance() {
+        return new Shape(Index.from(shape()));
     }
 
     private sealed interface Tree {}
@@ -309,6 +332,10 @@ final class Tensor {
             }
             return object instanceof Index index &&
                        Objects.equals(components, index.components);
+        }
+
+        List<Integer> components() {
+            return components;
         }
 
         int first() {

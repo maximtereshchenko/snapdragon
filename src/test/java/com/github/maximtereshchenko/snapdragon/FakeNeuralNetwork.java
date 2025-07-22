@@ -16,7 +16,7 @@ final class FakeNeuralNetwork implements NeuralNetwork {
 
     @Override
     public Outputs outputs(Inputs inputs) {
-        return new Outputs(inputs.matrix());
+        return new Outputs(inputs.tensor());
     }
 
     @Override

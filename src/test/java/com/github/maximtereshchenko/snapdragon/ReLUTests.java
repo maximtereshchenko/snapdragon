@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 final class ReLUTests {
@@ -21,28 +23,26 @@ final class ReLUTests {
                     """
     )
     void givenSingleInput_whenApply_thenSingleActivatedOutput(double input, double output) {
-        assertThat(activationFunction.apply(Matrix.horizontalVector(input)))
-            .isEqualTo(Matrix.horizontalVector(output));
+        assertThat(activationFunction.apply(Tensor.horizontalVector(input)))
+            .isEqualTo(Tensor.horizontalVector(output));
     }
 
     @Test
     void givenMultipleInputs_whenApply_thenExpectedOutputs() {
         assertThat(
             activationFunction.apply(
-                Matrix.from(
-                    new double[][]{
-                        {-1, -0.5, 0},
-                        {0, 0.5, 1},
-                    }
+                Tensor.from(
+                    List.of(2, 3),
+                    -1, -0.5, 0,
+                    0, 0.5, 1
                 )
             )
         )
             .isEqualTo(
-                Matrix.from(
-                    new double[][]{
-                        {0, 0, 0},
-                        {0, 0.5, 1},
-                    }
+                Tensor.from(
+                    List.of(2, 3),
+                    0, 0, 0,
+                    0, 0.5, 1
                 )
             );
     }
@@ -61,28 +61,26 @@ final class ReLUTests {
         double input,
         double derivative
     ) {
-        assertThat(activationFunction.derivative(Matrix.horizontalVector(input)))
-            .isEqualTo(Matrix.horizontalVector(derivative));
+        assertThat(activationFunction.derivative(Tensor.horizontalVector(input)))
+            .isEqualTo(Tensor.horizontalVector(derivative));
     }
 
     @Test
     void givenMultipleInputs_whenApply_thenExpectedDerivatives() {
         assertThat(
             activationFunction.derivative(
-                Matrix.from(
-                    new double[][]{
-                        {-1, -0.5, 0},
-                        {0, 0.5, 1},
-                    }
+                Tensor.from(
+                    List.of(2, 3),
+                    -1, -0.5, 0,
+                    0, 0.5, 1
                 )
             )
         )
             .isEqualTo(
-                Matrix.from(
-                    new double[][]{
-                        {0, 0, 0},
-                        {0, 1, 1},
-                    }
+                Tensor.from(
+                    List.of(2, 3),
+                    0, 0, 0,
+                    0, 1, 1
                 )
             );
     }

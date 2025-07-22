@@ -1,3 +1,3 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record Inputs(Matrix matrix) {}
+record Inputs(Tensor tensor) {}

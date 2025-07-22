@@ -8,10 +8,11 @@ record InputLayer(int size) implements Layer {
     }
 
     Outputs outputs(Inputs inputs) {
-        var matrix = inputs.matrix();
-        if (matrix.columns() != size) {
+        var tensor = inputs.tensor();
+        var shape = tensor.shape();
+        if (shape.size() != 2 && shape.getLast() != size) {
             throw new IllegalArgumentException();
         }
-        return new Outputs(matrix);
+        return new Outputs(tensor);
     }
 }

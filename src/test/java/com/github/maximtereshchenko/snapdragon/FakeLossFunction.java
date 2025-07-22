@@ -17,13 +17,13 @@ final class FakeLossFunction implements LossFunction {
     }
 
     @Override
-    public Matrix loss(Matrix outputs, Matrix labels) {
-        return Matrix.verticalVector(losses.remove())
-                   .broadcasted(labels.rows(), 1);
+    public Tensor loss(Tensor outputs, Tensor labels) {
+        return Tensor.verticalVector(losses.remove())
+                   .broadcasted(labels.shape().getFirst(), 1);
     }
 
     @Override
-    public Matrix derivative(Matrix outputs, Matrix labels) {
+    public Tensor derivative(Tensor outputs, Tensor labels) {
         return outputs;
     }
 }

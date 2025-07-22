@@ -1,17 +1,17 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record Weights(Matrix matrix) {
+record Weights(Tensor tensor) {
 
     Weights calibrated(Outputs outputs, Deltas deltas, LearningRate learningRate) {
-        var deltasMatrix = deltas.matrix();
+        var deltasTensor = deltas.tensor();
+        var product = outputs.tensor().transposed().contracted(deltasTensor);
         return new Weights(
-            matrix.combined(
-                outputs.matrix()
-                    .transposed()
-                    .product(deltasMatrix)
-                    .applied(value -> value / deltasMatrix.rows())
-                    .applied(value -> learningRate.value() * value),
-                (a, b) -> a - b
+            tensor.difference(
+                product.product(
+                    Tensor.horizontalVector(
+                            learningRate.value() / deltasTensor.shape().getFirst()
+                        )
+                        .broadcasted(product.shape()))
             )
         );
     }

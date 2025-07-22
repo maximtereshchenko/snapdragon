@@ -1,15 +1,15 @@
 package com.github.maximtereshchenko.snapdragon;
 
-final class ReLU implements ActivationFunction {
+record ReLU() implements ActivationFunction {
 
     @Override
-    public Matrix apply(Matrix matrix) {
-        return matrix.applied(value -> Math.max(0, value));
+    public Tensor apply(Tensor tensor) {
+        return Tensor.from(tensor.shape(), index -> Math.max(0, tensor.value(index)));
     }
 
     @Override
-    public Matrix derivative(Matrix matrix) {
-        return matrix.applied(this::derivative);
+    public Tensor derivative(Tensor tensor) {
+        return Tensor.from(tensor.shape(), index -> derivative(tensor.value(index)));
     }
 
     private double derivative(double value) {

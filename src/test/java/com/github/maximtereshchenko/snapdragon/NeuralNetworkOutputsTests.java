@@ -12,10 +12,10 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
     @Test
     void givenDifferentSizeInputs_whenOutputs_thenIllegalArgumentExceptionThrown() {
         var neuralNetwork = neuralNetwork(
-            List.of(Matrix.horizontalVector(0.1)),
-            List.of(Matrix.horizontalVector(0.1))
+            List.of(Tensor.horizontalVector(0.1)),
+            List.of(Tensor.horizontalVector(0.1))
         );
-        var tooManyInputs = new Inputs(Matrix.horizontalVector(0.1, 0.2));
+        var tooManyInputs = new Inputs(Tensor.horizontalVector(0.1, 0.2));
         assertThatThrownBy(() -> neuralNetwork.outputs(tooManyInputs))
             .isInstanceOf(IllegalArgumentException.class);
     }
@@ -24,25 +24,25 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
     void givenSingleInputOutput_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(0.1)),
-                List.of(Matrix.horizontalVector(0.2))
+                List.of(Tensor.horizontalVector(0.1)),
+                List.of(Tensor.horizontalVector(0.2))
             )
-                .outputs(new Inputs(Matrix.horizontalVector(0.3)))
+                .outputs(new Inputs(Tensor.horizontalVector(0.3)))
         )
-            .isEqualTo(new Outputs(Matrix.horizontalVector(0.3 * 0.1 + 0.2)));
+            .isEqualTo(new Outputs(Tensor.horizontalVector(0.3 * 0.1 + 0.2)));
     }
 
     @Test
     void givenBatchedInputs_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(0.1)),
-                List.of(Matrix.horizontalVector(0.2))
+                List.of(Tensor.horizontalVector(0.1)),
+                List.of(Tensor.horizontalVector(0.2))
             )
-                .outputs(new Inputs(Matrix.verticalVector(0.3, 0.4)))
+                .outputs(new Inputs(Tensor.verticalVector(0.3, 0.4)))
         )
             .isEqualTo(
-                new Outputs(Matrix.verticalVector(0.3 * 0.1 + 0.2, 0.4 * 0.1 + 0.2))
+                new Outputs(Tensor.verticalVector(0.3 * 0.1 + 0.2, 0.4 * 0.1 + 0.2))
             );
     }
 
@@ -50,25 +50,25 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
     void givenMultipleInputs_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.verticalVector(0.1, 0.2)),
-                List.of(Matrix.horizontalVector(0.3))
+                List.of(Tensor.verticalVector(0.1, 0.2)),
+                List.of(Tensor.horizontalVector(0.3))
             )
-                .outputs(new Inputs(Matrix.horizontalVector(0.4, 0.5)))
+                .outputs(new Inputs(Tensor.horizontalVector(0.4, 0.5)))
         )
-            .isEqualTo(new Outputs(Matrix.horizontalVector(0.4 * 0.1 + 0.5 * 0.2 + 0.3)));
+            .isEqualTo(new Outputs(Tensor.horizontalVector(0.4 * 0.1 + 0.5 * 0.2 + 0.3)));
     }
 
     @Test
     void givenMultipleOutputs_whenPrediction_thenExpectedOutputs() {
         assertThat(
             neuralNetwork(
-                List.of(Matrix.horizontalVector(0.1, 0.2)),
-                List.of(Matrix.horizontalVector(0.3, 0.4))
+                List.of(Tensor.horizontalVector(0.1, 0.2)),
+                List.of(Tensor.horizontalVector(0.3, 0.4))
             )
-                .outputs(new Inputs(Matrix.horizontalVector(0.5)))
+                .outputs(new Inputs(Tensor.horizontalVector(0.5)))
         )
             .isEqualTo(
-                new Outputs(Matrix.horizontalVector(0.5 * 0.1 + 0.3, 0.5 * 0.2 + 0.4))
+                new Outputs(Tensor.horizontalVector(0.5 * 0.1 + 0.3, 0.5 * 0.2 + 0.4))
             );
     }
 
@@ -77,17 +77,17 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(0.1),
-                    Matrix.horizontalVector(0.2)
+                    Tensor.horizontalVector(0.1),
+                    Tensor.horizontalVector(0.2)
                 ),
                 List.of(
-                    Matrix.horizontalVector(0.3),
-                    Matrix.horizontalVector(0.4)
+                    Tensor.horizontalVector(0.3),
+                    Tensor.horizontalVector(0.4)
                 )
             )
-                .outputs(new Inputs(Matrix.horizontalVector(0.5)))
+                .outputs(new Inputs(Tensor.horizontalVector(0.5)))
         )
-            .isEqualTo(new Outputs(Matrix.horizontalVector((0.5 * 0.1 + 0.3) * 0.2 + 0.4)));
+            .isEqualTo(new Outputs(Tensor.horizontalVector((0.5 * 0.1 + 0.3) * 0.2 + 0.4)));
     }
 
     @Test
@@ -95,19 +95,19 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(0.1, 0.2),
-                    Matrix.verticalVector(0.3, 0.4)
+                    Tensor.horizontalVector(0.1, 0.2),
+                    Tensor.verticalVector(0.3, 0.4)
                 ),
                 List.of(
-                    Matrix.horizontalVector(0.5, 0.6),
-                    Matrix.horizontalVector(0.7)
+                    Tensor.horizontalVector(0.5, 0.6),
+                    Tensor.horizontalVector(0.7)
                 )
             )
-                .outputs(new Inputs(Matrix.horizontalVector(0.8)))
+                .outputs(new Inputs(Tensor.horizontalVector(0.8)))
         )
             .isEqualTo(
                 new Outputs(
-                    Matrix.horizontalVector(
+                    Tensor.horizontalVector(
                         (0.8 * 0.1 + 0.5) * 0.3 +
                             (0.8 * 0.2 + 0.6) * 0.4 +
                             0.7
@@ -121,21 +121,21 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.horizontalVector(0.1),
-                    Matrix.horizontalVector(0.2),
-                    Matrix.horizontalVector(0.3)
+                    Tensor.horizontalVector(0.1),
+                    Tensor.horizontalVector(0.2),
+                    Tensor.horizontalVector(0.3)
                 ),
                 List.of(
-                    Matrix.horizontalVector(0.4),
-                    Matrix.horizontalVector(0.5),
-                    Matrix.horizontalVector(0.6)
+                    Tensor.horizontalVector(0.4),
+                    Tensor.horizontalVector(0.5),
+                    Tensor.horizontalVector(0.6)
                 )
             )
-                .outputs(new Inputs(Matrix.horizontalVector(0.7)))
+                .outputs(new Inputs(Tensor.horizontalVector(0.7)))
         )
             .isEqualTo(
                 new Outputs(
-                    Matrix.horizontalVector(((0.7 * 0.1 + 0.4) * 0.2 + 0.5) * 0.3 + 0.6)
+                    Tensor.horizontalVector(((0.7 * 0.1 + 0.4) * 0.2 + 0.5) * 0.3 + 0.6)
                 )
             );
     }
@@ -149,23 +149,23 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Matrix.from(new double[][]{{0.1, 0.2}, {0.3, 0.4}}),
-                    Matrix.from(new double[][]{{0.5, 0.6}, {0.7, 0.8}}),
-                    Matrix.from(new double[][]{{0.9, 0.10}, {0.11, 0.12}})
+                    Tensor.from(List.of(2, 2), 0.1, 0.2, 0.3, 0.4),
+                    Tensor.from(List.of(2, 2), 0.5, 0.6, 0.7, 0.8),
+                    Tensor.from(List.of(2, 2), 0.9, 0.10, 0.11, 0.12)
                 ),
                 List.of(
-                    Matrix.horizontalVector(0.13, 0.14),
-                    Matrix.horizontalVector(0.15, 0.16),
-                    Matrix.horizontalVector(0.17, 0.18)
+                    Tensor.horizontalVector(0.13, 0.14),
+                    Tensor.horizontalVector(0.15, 0.16),
+                    Tensor.horizontalVector(0.17, 0.18)
                 )
             )
                 .outputs(
-                    new Inputs(Matrix.horizontalVector(0.19, 0.20))
+                    new Inputs(Tensor.horizontalVector(0.19, 0.20))
                 )
         )
             .isEqualTo(
                 new Outputs(
-                    Matrix.horizontalVector(
+                    Tensor.horizontalVector(
                         neuron15 * 0.9 + neuron16 * 0.11 + 0.17,
                         neuron15 * 0.10 + neuron16 * 0.12 + 0.18
                     )

@@ -4,7 +4,7 @@ import java.util.List;
 
 abstract class BaseNeuralNetworkTest {
 
-    final NeuralNetwork neuralNetwork(List<Matrix> weights, List<Matrix> biases) {
+    final NeuralNetwork neuralNetwork(List<Tensor> weights, List<Tensor> biases) {
         var activationFunction = new FakeActivationFunction();
         return new NeuralNetworkFactory()
                    .neuralNetwork(

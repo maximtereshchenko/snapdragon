@@ -73,8 +73,18 @@ abstract class Dataset {
                 labels[i] = current.labels();
             }
             batchedLabeledSample = new BatchedLabeledSample(
-                new Inputs(Matrix.from(inputs)),
-                new Labels(Matrix.from(labels))
+                new Inputs(
+                    Tensor.from(
+                        List.of(inputs.length, inputs[0].length),
+                        index -> inputs[index.getFirst()][index.getLast()]
+                    )
+                ),
+                new Labels(
+                    Tensor.from(
+                        List.of(labels.length, labels[0].length),
+                        index -> labels[index.getFirst()][index.getLast()]
+                    )
+                )
             );
         }
     }

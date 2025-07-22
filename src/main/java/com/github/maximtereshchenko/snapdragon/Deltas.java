@@ -1,3 +1,3 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record Deltas(Matrix matrix) {}
+record Deltas(Tensor tensor) {}

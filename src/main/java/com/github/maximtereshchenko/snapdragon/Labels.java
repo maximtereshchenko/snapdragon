@@ -1,3 +1,3 @@
 package com.github.maximtereshchenko.snapdragon;
 
-record Labels(Matrix matrix) {}
+record Labels(Tensor tensor) {}

@@ -10,23 +10,23 @@ final class NeuralNetworkCreationTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenNoWeightsBiases_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var empty = List.<Matrix>of();
+        var empty = List.<Tensor>of();
         assertThatThrownBy(() -> neuralNetwork(empty, empty))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void givenDifferentSizeWeightsAndBiases_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var weights = List.<Matrix>of();
-        var biases = List.of(Matrix.horizontalVector(1));
+        var weights = List.<Tensor>of();
+        var biases = List.of(Tensor.horizontalVector(1));
         assertThatThrownBy(() -> neuralNetwork(weights, biases))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void givenDifferentWeightColumnsBiasesColumns_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
-        var twoWeights = List.of(Matrix.horizontalVector(1, 2));
-        var oneBias = List.of(Matrix.horizontalVector(1));
+        var twoWeights = List.of(Tensor.horizontalVector(1, 2));
+        var oneBias = List.of(Tensor.horizontalVector(1));
         assertThatThrownBy(() -> neuralNetwork(twoWeights, oneBias))
             .isInstanceOf(IllegalArgumentException.class);
     }
@@ -34,12 +34,12 @@ final class NeuralNetworkCreationTests extends BaseNeuralNetworkTest {
     @Test
     void givenDifferentWeightRowsBiasesColumns_whenCreateNeuralNetwork_thenIllegalArgumentExceptionThrown() {
         var oneWeightOutputLayer = List.of(
-            Matrix.horizontalVector(1, 2),
-            Matrix.horizontalVector(1)
+            Tensor.horizontalVector(1, 2),
+            Tensor.horizontalVector(1)
         );
         var oneBiasOutputLayer = List.of(
-            Matrix.horizontalVector(1, 2),
-            Matrix.horizontalVector(1)
+            Tensor.horizontalVector(1, 2),
+            Tensor.horizontalVector(1)
         );
         assertThatThrownBy(() -> neuralNetwork(oneWeightOutputLayer, oneBiasOutputLayer))
             .isInstanceOf(IllegalArgumentException.class);

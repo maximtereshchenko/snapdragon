@@ -59,18 +59,10 @@ abstract class ForwardPropagationParticipant<T extends ForwardPropagationPartici
     }
 
     final Outputs outputs(Outputs outputs, Weights weights) {
-        var weightedSums = outputs.matrix().product(weights.matrix());
+        var weightedSums = outputs.tensor().contracted(weights.tensor());
+        var shape = weightedSums.shape();
         return new Outputs(
-            activationFunction.apply(
-                weightedSums.combined(
-                    biases.matrix()
-                        .broadcasted(
-                            weightedSums.rows(),
-                            weightedSums.columns()
-                        ),
-                    Double::sum
-                )
-            )
+            activationFunction.apply(weightedSums.sum(biases.tensor().broadcasted(shape)))
         );
     }
 

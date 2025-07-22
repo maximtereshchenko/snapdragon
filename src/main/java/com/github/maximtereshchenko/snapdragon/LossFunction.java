@@ -2,7 +2,7 @@ package com.github.maximtereshchenko.snapdragon;
 
 interface LossFunction {
 
-    Matrix loss(Matrix outputs, Matrix labels);
+    Tensor loss(Tensor outputs, Tensor labels);
 
-    Matrix derivative(Matrix outputs, Matrix labels);
+    Tensor derivative(Tensor outputs, Tensor labels);
 }

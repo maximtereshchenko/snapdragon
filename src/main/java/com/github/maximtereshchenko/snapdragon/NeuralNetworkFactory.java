@@ -6,15 +6,15 @@ import java.util.List;
 final class NeuralNetworkFactory {
 
     NeuralNetwork neuralNetwork(
-        List<Matrix> weights,
-        List<Matrix> biases,
+        List<Tensor> weights,
+        List<Tensor> biases,
         ActivationFunction hiddenLayerActivationFunction,
         ActivationFunction outputLayerActivationFunction
     ) {
         if (weights.isEmpty() || weights.size() != biases.size()) {
             throw new IllegalArgumentException();
         }
-        var inputLayer = new InputLayer(weights.getFirst().rows());
+        var inputLayer = new InputLayer(weights.getFirst().shape().getFirst());
         var hiddenLayers = new ArrayList<HiddenLayer>();
         var networkWeights = new NetworkWeights();
         Layer left = inputLayer;
@@ -44,11 +44,16 @@ final class NeuralNetworkFactory {
         NetworkWeights networkWeights,
         Layer left,
         Layer right,
-        Matrix matrix
+        Tensor tensor
     ) {
-        if (matrix.rows() != left.size() || matrix.columns() != right.size()) {
+        var shape = tensor.shape();
+        if (
+            shape.size() != 2 ||
+                shape.getFirst() != left.size() ||
+                shape.getLast() != right.size()
+        ) {
             throw new IllegalArgumentException();
         }
-        return networkWeights.with(left.index(), right.index(), new Weights(matrix));
+        return networkWeights.with(left.index(), right.index(), new Weights(tensor));
     }
 }

@@ -2,7 +2,7 @@ package com.github.maximtereshchenko.snapdragon;
 
 interface ActivationFunction {
 
-    Matrix apply(Matrix matrix);
+    Tensor apply(Tensor tensor);
 
-    Matrix derivative(Matrix matrix);
+    Tensor derivative(Tensor tensor);
 }
