@@ -4,5 +4,5 @@ interface ActivationFunction {
 
     Tensor apply(Tensor tensor);
 
-    Tensor derivative(Tensor outputs, Tensor errorSignal);
+    Tensor deltas(Tensor outputs, Tensor errorSignal);
 }

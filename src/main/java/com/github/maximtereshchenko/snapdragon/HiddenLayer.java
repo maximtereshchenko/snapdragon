@@ -33,7 +33,7 @@ final class HiddenLayer extends ForwardPropagationParticipant<HiddenLayer> {
 
     Deltas deltas(Deltas deltas, Outputs outputs, Weights weights) {
         return new Deltas(
-            activationFunction().derivative(
+            activationFunction().deltas(
                 outputs.tensor(),
                 deltas.tensor().contracted(weights.tensor().transposed())
             )

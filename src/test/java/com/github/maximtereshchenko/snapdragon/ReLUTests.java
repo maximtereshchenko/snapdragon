@@ -57,12 +57,12 @@ final class ReLUTests {
                     1, 1
                     """
     )
-    void givenSingleInput_whenDerivative_thenExpectedDerivativeValue(
+    void givenSingleInput_whenDeltas_thenExpectedDeltasValue(
         double input,
         double derivative
     ) {
         assertThat(
-            activationFunction.derivative(
+            activationFunction.deltas(
                 Tensor.horizontalVector(input),
                 Tensor.horizontalVector(2)
             )
@@ -71,9 +71,9 @@ final class ReLUTests {
     }
 
     @Test
-    void givenMultipleInputs_whenApply_thenExpectedDerivatives() {
+    void givenMultipleInputs_whenDeltas_thenExpectedDeltas() {
         assertThat(
-            activationFunction.derivative(
+            activationFunction.deltas(
                 Tensor.from(
                     List.of(2, 3),
                     -1, -0.5, 0,

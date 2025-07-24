@@ -34,7 +34,7 @@ final class OutputLayer extends ForwardPropagationParticipant<OutputLayer> {
     Deltas deltas(LayerMap<Outputs> outputs, LossFunction lossFunction, Labels labels) {
         var outputsTensor = outputs.element(index()).tensor();
         return new Deltas(
-            activationFunction().derivative(
+            activationFunction().deltas(
                 outputsTensor,
                 lossFunction.derivative(outputsTensor, labels.tensor())
             )
