@@ -8,8 +8,10 @@ record ReLU() implements ActivationFunction {
     }
 
     @Override
-    public Tensor derivative(Tensor tensor) {
-        return Tensor.from(tensor.shape(), index -> derivative(tensor.value(index)));
+    public Tensor derivative(Tensor outputs, Tensor errorSignal) {
+        return errorSignal.product(
+            Tensor.from(outputs.shape(), index -> derivative(outputs.value(index)))
+        );
     }
 
     private double derivative(double value) {

@@ -92,6 +92,11 @@ final class Tensor {
                    Objects.equals(trees, tensor.trees);
     }
 
+    @Override
+    public String toString() {
+        return trees.toString();
+    }
+
     double value(Integer... index) {
         return value(List.of(index));
     }
@@ -212,9 +217,21 @@ final class Tensor {
 
     private sealed interface Tree {}
 
-    private record Branch(Tensor tensor) implements Tree {}
+    private record Branch(Tensor tensor) implements Tree {
 
-    private record Leaf(double value) implements Tree {}
+        @Override
+        public String toString() {
+            return tensor.toString();
+        }
+    }
+
+    private record Leaf(double value) implements Tree {
+
+        @Override
+        public String toString() {
+            return "%.2f".formatted(value);
+        }
+    }
 
     private static final class Shape {
 

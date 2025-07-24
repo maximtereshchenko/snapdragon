@@ -8,7 +8,7 @@ record FakeActivationFunction() implements ActivationFunction {
     }
 
     @Override
-    public Tensor derivative(Tensor tensor) {
-        return tensor;
+    public Tensor derivative(Tensor outputs, Tensor errorSignal) {
+        return errorSignal;
     }
 }

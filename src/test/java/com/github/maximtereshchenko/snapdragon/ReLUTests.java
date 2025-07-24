@@ -61,8 +61,13 @@ final class ReLUTests {
         double input,
         double derivative
     ) {
-        assertThat(activationFunction.derivative(Tensor.horizontalVector(input)))
-            .isEqualTo(Tensor.horizontalVector(derivative));
+        assertThat(
+            activationFunction.derivative(
+                Tensor.horizontalVector(input),
+                Tensor.horizontalVector(2)
+            )
+        )
+            .isEqualTo(Tensor.horizontalVector(derivative * 2));
     }
 
     @Test
@@ -73,14 +78,15 @@ final class ReLUTests {
                     List.of(2, 3),
                     -1, -0.5, 0,
                     0, 0.5, 1
-                )
+                ),
+                Tensor.horizontalVector(2).broadcasted(List.of(2, 3))
             )
         )
             .isEqualTo(
                 Tensor.from(
                     List.of(2, 3),
                     0, 0, 0,
-                    0, 1, 1
+                    0, 2, 2
                 )
             );
     }

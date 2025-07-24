@@ -11,7 +11,6 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
     @Test
     void givenSingleInputOutput_whenCalibrated_thenCalibratedNeuralNetwork() {
         var output = 0.4 * 0.2 + 0.3;
-        var outputDelta = output * output;
         assertThat(
             neuralNetwork(
                 List.of(Tensor.horizontalVector(0.2)),
@@ -26,8 +25,8 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
         )
             .isEqualTo(
                 neuralNetwork(
-                    List.of(Tensor.horizontalVector(0.2 - 0.5 * 0.4 * outputDelta)),
-                    List.of(Tensor.horizontalVector(0.3 - 0.5 * outputDelta))
+                    List.of(Tensor.horizontalVector(0.2 - 0.5 * 0.4 * output)),
+                    List.of(Tensor.horizontalVector(0.3 - 0.5 * output))
                 )
             );
     }
@@ -36,8 +35,6 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
     void givenBatchedInputs_whenCalibrated_thenCalibratedNeuralNetwork() {
         var firstOutput = 0.4 * 0.2 + 0.3;
         var secondOutput = 0.5 * 0.2 + 0.3;
-        var firstOutputDelta = firstOutput * firstOutput;
-        var secondOutputDelta = secondOutput * secondOutput;
         assertThat(
             neuralNetwork(
                 List.of(Tensor.horizontalVector(0.2)),
@@ -54,12 +51,12 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                 neuralNetwork(
                     List.of(
                         Tensor.horizontalVector(
-                            0.2 - 0.6 * (0.4 * firstOutputDelta + 0.5 * secondOutputDelta) / 2
+                            0.2 - 0.6 * (0.4 * firstOutput + 0.5 * secondOutput) / 2
                         )
                     ),
                     List.of(
                         Tensor.horizontalVector(
-                            0.3 - 0.6 * (firstOutputDelta + secondOutputDelta) / 2
+                            0.3 - 0.6 * (firstOutput + secondOutput) / 2
                         )
                     )
                 )
@@ -68,30 +65,29 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleInputs_whenCalibrated_thenCalibratedNeuralNetwork() {
-        var output = 0.7 * 0.4 + 0.8 * 0.5 + 0.6;
-        var outputDelta = output * output;
+        var output = 0.7 * 0.4 + 0.10 * 0.5 + 0.6;
         assertThat(
             neuralNetwork(
                 List.of(Tensor.verticalVector(0.4, 0.5)),
                 List.of(Tensor.horizontalVector(0.6))
             )
                 .calibrated(
-                    new Inputs(Tensor.horizontalVector(0.7, 0.8)),
+                    new Inputs(Tensor.horizontalVector(0.7, 0.10)),
                     new Labels(Tensor.horizontalVector(0)),
                     new FakeLossFunction(),
-                    new LearningRate(0.9)
+                    new LearningRate(0.12)
                 )
         )
             .isEqualTo(
                 neuralNetwork(
                     List.of(
                         Tensor.verticalVector(
-                            0.4 - 0.9 * 0.7 * outputDelta,
-                            0.5 - 0.9 * 0.8 * outputDelta
+                            0.4 - 0.12 * 0.7 * output,
+                            0.5 - 0.12 * 0.10 * output
                         )
                     ),
                     List.of(
-                        Tensor.horizontalVector(0.6 - 0.9 * outputDelta)
+                        Tensor.horizontalVector(0.6 - 0.12 * output)
                     )
                 )
             );
@@ -101,8 +97,6 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
     void givenMultipleOutputs_whenCalibrated_thenCalibratedNeuralNetwork() {
         var firstOutput = 0.5 * 0.1 + 0.3;
         var secondOutput = 0.5 * 0.2 + 0.4;
-        var firstOutputDelta = firstOutput * firstOutput;
-        var secondOutputDelta = secondOutput * secondOutput;
         assertThat(
             neuralNetwork(
                 List.of(Tensor.horizontalVector(0.1, 0.2)),
@@ -119,14 +113,14 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                 neuralNetwork(
                     List.of(
                         Tensor.horizontalVector(
-                            0.1 - 0.6 * 0.5 * firstOutputDelta,
-                            0.2 - 0.6 * 0.5 * secondOutputDelta
+                            0.1 - 0.6 * 0.5 * firstOutput,
+                            0.2 - 0.6 * 0.5 * secondOutput
                         )
                     ),
                     List.of(
                         Tensor.horizontalVector(
-                            0.3 - 0.6 * firstOutputDelta,
-                            0.4 - 0.6 * secondOutputDelta
+                            0.3 - 0.6 * firstOutput,
+                            0.4 - 0.6 * secondOutput
                         )
                     )
                 )
@@ -137,8 +131,7 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
     void givenSingleHiddenNeuron_whenCalibrated_thenCalibratedNeuralNetwork() {
         var hiddenNeuronOutput = 0.5 * 0.1 + 0.3;
         var output = hiddenNeuronOutput * 0.2 + 0.4;
-        var outputDelta = output * output;
-        var hiddenNeuronDelta = 0.2 * outputDelta * hiddenNeuronOutput;
+        var hiddenNeuronDelta = 0.2 * output;
         assertThat(
             neuralNetwork(
                 List.of(
@@ -161,11 +154,11 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                 neuralNetwork(
                     List.of(
                         Tensor.horizontalVector(0.1 - 0.6 * 0.5 * hiddenNeuronDelta),
-                        Tensor.horizontalVector(0.2 - 0.6 * hiddenNeuronOutput * outputDelta)
+                        Tensor.horizontalVector(0.2 - 0.6 * hiddenNeuronOutput * output)
                     ),
                     List.of(
                         Tensor.horizontalVector(0.3 - 0.6 * hiddenNeuronDelta),
-                        Tensor.horizontalVector(0.4 - 0.6 * outputDelta)
+                        Tensor.horizontalVector(0.4 - 0.6 * output)
                     )
                 )
             );
@@ -176,9 +169,8 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
         var firstHiddenNeuronOutput = 0.9 * 0.2 + 0.6;
         var secondHiddenNeuronOutput = 0.9 * 0.3 + 0.7;
         var output = firstHiddenNeuronOutput * 0.4 + secondHiddenNeuronOutput * 0.5 + 0.8;
-        var outputDelta = output * output;
-        var firstHiddenNeuronDelta = 0.4 * outputDelta * firstHiddenNeuronOutput;
-        var secondHiddenNeuronDelta = 0.5 * outputDelta * secondHiddenNeuronOutput;
+        var firstHiddenNeuronDelta = 0.4 * output;
+        var secondHiddenNeuronDelta = 0.5 * output;
         assertThat(
             neuralNetwork(
                 List.of(
@@ -205,8 +197,8 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                             0.3 - 1.0 * 0.9 * secondHiddenNeuronDelta
                         ),
                         Tensor.verticalVector(
-                            0.4 - 1.0 * firstHiddenNeuronOutput * outputDelta,
-                            0.5 - 1.0 * secondHiddenNeuronOutput * outputDelta
+                            0.4 - 1.0 * firstHiddenNeuronOutput * output,
+                            0.5 - 1.0 * secondHiddenNeuronOutput * output
                         )
                     ),
                     List.of(
@@ -214,7 +206,7 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                             0.6 - 1.0 * firstHiddenNeuronDelta,
                             0.7 - 1.0 * secondHiddenNeuronDelta
                         ),
-                        Tensor.horizontalVector(0.8 - 1.0 * outputDelta)
+                        Tensor.horizontalVector(0.8 - 1.0 * output)
                     )
                 )
             );
@@ -225,10 +217,8 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
         var firstHiddenLayerNeuronOutput = 0.7 * 0.1 + 0.4;
         var secondHiddenLayerNeuronOutput = firstHiddenLayerNeuronOutput * 0.2 + 0.5;
         var output = secondHiddenLayerNeuronOutput * 0.3 + 0.6;
-        var outputDelta = output * output;
-        var secondHiddenLayerNeuronDelta = 0.3 * outputDelta * secondHiddenLayerNeuronOutput;
-        var firstHiddenLayerNeuronDelta =
-            0.2 * secondHiddenLayerNeuronDelta * firstHiddenLayerNeuronOutput;
+        var secondHiddenLayerNeuronDelta = 0.3 * output;
+        var firstHiddenLayerNeuronDelta = 0.2 * secondHiddenLayerNeuronDelta;
         assertThat(
             neuralNetwork(
                 List.of(
@@ -254,12 +244,12 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                     List.of(
                         Tensor.horizontalVector(0.1 - 0.8 * 0.7 * firstHiddenLayerNeuronDelta),
                         Tensor.horizontalVector(0.2 - 0.8 * firstHiddenLayerNeuronOutput * secondHiddenLayerNeuronDelta),
-                        Tensor.horizontalVector(0.3 - 0.8 * secondHiddenLayerNeuronOutput * outputDelta)
+                        Tensor.horizontalVector(0.3 - 0.8 * secondHiddenLayerNeuronOutput * output)
                     ),
                     List.of(
                         Tensor.horizontalVector(0.4 - 0.8 * firstHiddenLayerNeuronDelta),
                         Tensor.horizontalVector(0.5 - 0.8 * secondHiddenLayerNeuronDelta),
-                        Tensor.horizontalVector(0.6 - 0.8 * outputDelta)
+                        Tensor.horizontalVector(0.6 - 0.8 * output)
                     )
                 )
             );
@@ -267,24 +257,22 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
 
     @Test
     void givenMultipleLayersMultipleNeurons_whenCalibrated_thenCalibratedNeuralNetwork() {
-        var output13 = 0.21 * 0.3 + 0.22 * 0.5 + 0.15;
-        var output14 = 0.21 * 0.4 + 0.22 * 0.6 + 0.16;
+        var output13 = 0.42 * 0.3 + 0.44 * 0.1 + 0.15;
+        var output14 = 0.42 * 0.4 + 0.44 * 0.6 + 0.16;
         var output15 = output13 * 0.7 + output14 * 0.9 + 0.17;
         var output16 = output13 * 0.8 + output14 * 1.0 + 0.18;
-        var output17 = output15 * 0.11 + output16 * 0.13 + 0.19;
-        var output18 = output15 * 0.12 + output16 * 0.14 + 0.20;
-        var outputDelta17 = output17 * output17;
-        var outputDelta18 = output18 * output18;
-        var outputDelta15 = (0.11 * outputDelta17 + 0.12 * outputDelta18) * output15;
-        var outputDelta16 = (0.13 * outputDelta17 + 0.14 * outputDelta18) * output16;
-        var outputDelta13 = (0.7 * outputDelta15 + 0.8 * outputDelta16) * output13;
-        var outputDelta14 = (0.9 * outputDelta15 + 1.0 * outputDelta16) * output14;
+        var output17 = output15 * 0.11 + output16 * 0.26 + 0.19;
+        var output18 = output15 * 0.24 + output16 * 0.14 + 0.20;
+        var outputDelta15 = 0.11 * output17 + 0.24 * output18;
+        var outputDelta16 = 0.26 * output17 + 0.14 * output18;
+        var outputDelta13 = 0.7 * outputDelta15 + 0.8 * outputDelta16;
+        var outputDelta14 = 0.9 * outputDelta15 + 1.0 * outputDelta16;
         assertThat(
             neuralNetwork(
                 List.of(
-                    Tensor.from(List.of(2, 2), 0.3, 0.4, 0.5, 0.6),
+                    Tensor.from(List.of(2, 2), 0.3, 0.4, 0.1, 0.6),
                     Tensor.from(List.of(2, 2), 0.7, 0.8, 0.9, 1.0),
-                    Tensor.from(List.of(2, 2), 0.11, 0.12, 0.13, 0.14)
+                    Tensor.from(List.of(2, 2), 0.11, 0.24, 0.26, 0.14)
                 ),
                 List.of(
                     Tensor.horizontalVector(0.15, 0.16),
@@ -293,7 +281,7 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                 )
             )
                 .calibrated(
-                    new Inputs(Tensor.horizontalVector(0.21, 0.22)),
+                    new Inputs(Tensor.horizontalVector(0.42, 0.44)),
                     new Labels(Tensor.horizontalVector(0, 0)),
                     new FakeLossFunction(),
                     new LearningRate(0.23)
@@ -304,10 +292,10 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                     List.of(
                         Tensor.from(
                             List.of(2, 2),
-                            0.3 - 0.23 * 0.21 * outputDelta13,
-                            0.4 - 0.23 * 0.21 * outputDelta14,
-                            0.5 - 0.23 * 0.22 * outputDelta13,
-                            0.6 - 0.23 * 0.22 * outputDelta14
+                            0.3 - 0.23 * 0.42 * outputDelta13,
+                            0.4 - 0.23 * 0.42 * outputDelta14,
+                            0.1 - 0.23 * 0.44 * outputDelta13,
+                            0.6 - 0.23 * 0.44 * outputDelta14
                         ),
                         Tensor.from(
                             List.of(2, 2),
@@ -318,10 +306,10 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                         ),
                         Tensor.from(
                             List.of(2, 2),
-                            0.11 - 0.23 * output15 * outputDelta17,
-                            0.12 - 0.23 * output15 * outputDelta18,
-                            0.13 - 0.23 * output16 * outputDelta17,
-                            0.14 - 0.23 * output16 * outputDelta18
+                            0.11 - 0.23 * output15 * output17,
+                            0.24 - 0.23 * output15 * output18,
+                            0.26 - 0.23 * output16 * output17,
+                            0.14 - 0.23 * output16 * output18
                         )
                     ),
                     List.of(
@@ -334,8 +322,8 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
                             0.18 - 0.23 * outputDelta16
                         ),
                         Tensor.horizontalVector(
-                            0.19 - 0.23 * outputDelta17,
-                            0.20 - 0.23 * outputDelta18
+                            0.19 - 0.23 * output17,
+                            0.20 - 0.23 * output18
                         )
                     )
                 )
