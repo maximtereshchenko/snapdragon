@@ -2,8 +2,27 @@ package com.github.maximtereshchenko.snapdragon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Stream;
 
 final class NeuralNetworkFactory {
+
+    NeuralNetwork neuralNetwork(
+        Random random,
+        int inputs,
+        int hiddenLayers,
+        int outputs,
+        ActivationFunction hiddenLayerActivationFunction,
+        ActivationFunction outputLayerActivationFunction
+    ) {
+        var hiddenNeurons = (inputs + outputs) * 2 / 3;
+        return neuralNetwork(
+            randomWeights(random, inputs, hiddenNeurons, hiddenLayers, outputs),
+            randomBiases(random, hiddenNeurons, hiddenLayers, outputs),
+            hiddenLayerActivationFunction,
+            outputLayerActivationFunction
+        );
+    }
 
     NeuralNetwork neuralNetwork(
         List<Tensor> weights,
@@ -37,6 +56,48 @@ final class NeuralNetworkFactory {
         return new MultiLayerPerceptron(
             new NetworkLayers(inputLayer, hiddenLayers, outputLayer),
             networkWeights
+        );
+    }
+
+    private List<Tensor> randomBiases(
+        Random random,
+        int hiddenNeurons,
+        int hiddenLayers,
+        int outputs
+    ) {
+        return Stream.concat(
+                Stream.generate(() ->
+                                    Tensor.horizontalVector(random.doubles(hiddenNeurons).toArray())
+                    )
+                    .limit(hiddenLayers),
+                Stream.of(Tensor.horizontalVector(random.doubles(outputs).toArray()))
+            )
+
+                   .toList();
+    }
+
+    private List<Tensor> randomWeights(
+        Random random,
+        int inputs,
+        int hiddenNeurons,
+        int hiddenLayers,
+        int outputs
+    ) {
+        var previousSize = inputs;
+        var weights = new ArrayList<Tensor>();
+        for (var i = 0; i < hiddenLayers; i++) {
+            weights.add(randomWeightsTensor(random, hiddenNeurons, previousSize));
+            previousSize = hiddenNeurons;
+        }
+        weights.add(randomWeightsTensor(random, outputs, previousSize));
+        return weights;
+    }
+
+    private Tensor randomWeightsTensor(Random random, int outputs, int previousSize) {
+        return Tensor.from(
+            List.of(previousSize, outputs),
+            random.doubles((long) previousSize * outputs)
+                .toArray()
         );
     }
 
