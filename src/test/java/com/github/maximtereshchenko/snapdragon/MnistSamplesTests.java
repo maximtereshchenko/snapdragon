@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,7 +17,7 @@ final class MnistSamplesTests {
     @Test
     void givenMultipleDimensionSample_thenSingleEntryDataset(@TempDir Path path)
         throws IOException {
-        var inputs = Files.write(path.resolve("inputs"), bytes(List.of(2, 2), 3, 4, 5, 6));
+        var inputs = Files.write(path.resolve("inputs"), bytes(List.of(1, 2, 2), 3, 4, 5, 6));
         var labels = Files.write(path.resolve("labels"), bytes(List.of(1), 7));
 
         assertThat(batchedLabeledSamples(inputs, labels))
@@ -34,8 +33,10 @@ final class MnistSamplesTests {
     @Test
     void givenMultipleSamples_thenMultipleDatasetEntries(@TempDir Path path)
         throws IOException {
-        var inputs = Files.write(path.resolve("inputs"), bytes(List.of(2, 2), 3, 4, 5, 6));
-        Files.write(inputs, bytes(List.of(2, 2), 7, 8, 9, 10), StandardOpenOption.APPEND);
+        var inputs = Files.write(
+            path.resolve("inputs"),
+            bytes(List.of(2, 2, 2), 3, 4, 5, 6, 7, 8, 9, 10)
+        );
         var labels = Files.write(path.resolve("labels"), bytes(List.of(2), 0, 1));
 
         assertThat(batchedLabeledSamples(inputs, labels))
