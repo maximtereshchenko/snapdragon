@@ -1,8 +1,9 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.ToDoubleFunction;
@@ -39,7 +40,11 @@ public final class Tensor {
         if (length(arrayBasedShape) != values.length) {
             throw new IllegalArgumentException();
         }
-        return new Tensor(values, arrayBasedShape);
+        var tensor = empty(arrayBasedShape);
+        for (var i = 0; i < values.length; i++) {
+            tensor.set(i, values[i]);
+        }
+        return tensor;
     }
 
     static Tensor from(int[] shape, ToDoubleFunction<int[]> function) {
@@ -59,15 +64,44 @@ public final class Tensor {
     }
 
     private static Tensor from(Shape shape, ToDoubleFunction<int[]> function) {
-        var tensor = new Tensor(new double[length(shape)], shape);
-        var indexes = new IndexIterator(shape.array());
+        var tensor = empty(shape);
         try (var executor = Executors.newWorkStealingPool()) {
-            while (indexes.hasNext()) {
-                var index = indexes.next();
-                executor.execute(() -> tensor.set(index, function.applyAsDouble(index)));
-            }
+            fillAsync(executor, tensor, new IndexIterator(shape.array()), function);
         }
         return tensor;
+    }
+
+    private static void fillAsync(
+        ExecutorService executor,
+        Tensor tensor,
+        Iterator<int[]> indexes,
+        ToDoubleFunction<int[]> function
+    ) {
+        var futures = new ArrayList<CompletableFuture<Void>>();
+        while (indexes.hasNext()) {
+            var index = indexes.next();
+            futures.add(
+                CompletableFuture.runAsync(
+                    () -> tensor.set(index, function.applyAsDouble(index)),
+                    executor
+                )
+            );
+        }
+        await(futures);
+    }
+
+    private static void await(List<CompletableFuture<Void>> futures) {
+        try {
+            CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+        }
+    }
+
+    private static Tensor empty(Shape shape) {
+        return new Tensor(new double[length(shape)], shape);
     }
 
     private static int length(Shape shape) {
@@ -185,11 +219,17 @@ public final class Tensor {
     }
 
     private void set(int[] index, double value) {
-        values[shape.offset(index)] = value;
+        set(shape.offset(index), value);
+    }
+
+    private void set(int index, double value) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException();
+        }
+        values[index] = value;
     }
 
     private double productSum(Tensor tensor, int[] index, int dimension) {
-        var sum = 0.0;
         var thisShapeArray = shape.array();
         var left = new int[thisShapeArray.length];
         System.arraycopy(index, 0, left, 0, left.length - 1);
@@ -203,6 +243,7 @@ public final class Tensor {
             dimension + 1,
             right.length - dimension - 1
         );
+        var sum = 0.0;
         for (
             var contractedDimension = 0;
             contractedDimension < thisShapeArray[thisShapeArray.length - 1];

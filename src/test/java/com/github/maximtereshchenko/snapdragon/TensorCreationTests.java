@@ -16,7 +16,11 @@ final class TensorCreationTests {
             Tensor::verticalVector,
             () -> Tensor.matrix(0, 0),
             () -> Tensor.from(new int[]{1, 2, 0}, 1, 2, 3),
-            () -> Tensor.matrix(2, 2, 1, 2, 3)
+            () -> Tensor.matrix(2, 2, 1, 2, 3),
+            () -> Tensor.horizontalVector(Double.NaN),
+            () -> Tensor.verticalVector(Double.POSITIVE_INFINITY),
+            () -> Tensor.matrix(1, 1, Double.NEGATIVE_INFINITY),
+            () -> Tensor.from(new int[]{1, 1}, index -> Double.NaN)
         );
     }
 
