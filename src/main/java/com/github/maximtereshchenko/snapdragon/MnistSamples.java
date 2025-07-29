@@ -72,7 +72,7 @@ final class MnistSamples<T extends Dataset> {
         try {
             var values = new double[length];
             for (var currentValue = 0; currentValue < values.length; currentValue++) {
-                values[currentValue] = inputStream.read();
+                values[currentValue] = inputStream.read() / 255.0;
             }
             return values;
         } catch (IOException e) {

@@ -24,7 +24,9 @@ final class MnistSamplesTests {
             .toIterable()
             .containsExactly(
                 new BatchedLabeledSample(
-                    new Inputs(Tensor.horizontalVector(3, 4, 5, 6)),
+                    new Inputs(
+                        Tensor.horizontalVector(3.0 / 255, 4.0 / 255, 5.0 / 255, 6.0 / 255)
+                    ),
                     new Labels(Tensor.horizontalVector(0, 0, 0, 0, 0, 0, 0, 1, 0, 0))
                 )
             );
@@ -43,7 +45,15 @@ final class MnistSamplesTests {
             .toIterable()
             .containsExactly(
                 new BatchedLabeledSample(
-                    new Inputs(Tensor.matrix(2, 4, 3, 4, 5, 6, 7, 8, 9, 10)),
+                    new Inputs(
+                        Tensor.matrix(
+                            2, 4,
+                            3.0 / 255, 4.0 / 255,
+                            5.0 / 255, 6.0 / 255,
+                            7.0 / 255, 8.0 / 255,
+                            9.0 / 255, 10.0 / 255
+                        )
+                    ),
                     new Labels(
                         Tensor.matrix(
                             2, 10,
