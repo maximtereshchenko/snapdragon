@@ -23,10 +23,10 @@ final class TensorCombinationTests {
             Tensor.horizontalVector(2, 1),
             Tensor.verticalVector(4, 3),
             Tensor.verticalVector(2, 1),
-            Tensor.from(List.of(2, 2), 8, 7, 6, 5),
-            Tensor.from(List.of(2, 2), 4, 3, 2, 1),
-            Tensor.from(List.of(2, 2, 2), 16, 15, 14, 13, 12, 11, 10, 9),
-            Tensor.from(List.of(2, 2, 2), 8, 7, 6, 5, 4, 3, 2, 1)
+            Tensor.matrix(2, 2, 8, 7, 6, 5),
+            Tensor.matrix(2, 2, 4, 3, 2, 1),
+            Tensor.from(new int[]{2, 2, 2}, 16, 15, 14, 13, 12, 11, 10, 9),
+            Tensor.from(new int[]{2, 2, 2}, 8, 7, 6, 5, 4, 3, 2, 1)
         );
         return Stream.of(
                 arguments(
@@ -36,9 +36,12 @@ final class TensorCombinationTests {
                         Tensor.horizontalVector(2 + 1),
                         Tensor.horizontalVector(4 + 2, 3 + 1),
                         Tensor.verticalVector(4 + 2, 3 + 1),
-                        Tensor.from(List.of(2, 2), 8 + 4, 7 + 3, 6 + 2, 5 + 1),
+                        Tensor.matrix(
+                            2, 2,
+                            8 + 4, 7 + 3, 6 + 2, 5 + 1
+                        ),
                         Tensor.from(
-                            List.of(2, 2, 2),
+                            new int[]{2, 2, 2},
                             16 + 8, 15 + 7, 14 + 6, 13 + 5, 12 + 4, 11 + 3, 10 + 2, 9 + 1
                         )
                     )
@@ -50,9 +53,12 @@ final class TensorCombinationTests {
                         Tensor.horizontalVector(2 - 1),
                         Tensor.horizontalVector(4 - 2, 3 - 1),
                         Tensor.verticalVector(4 - 2, 3 - 1),
-                        Tensor.from(List.of(2, 2), 8 - 4, 7 - 3, 6 - 2, 5 - 1),
+                        Tensor.matrix(
+                            2, 2,
+                            8 - 4, 7 - 3, 6 - 2, 5 - 1
+                        ),
                         Tensor.from(
-                            List.of(2, 2, 2),
+                            new int[]{2, 2, 2},
                             16 - 8, 15 - 7, 14 - 6, 13 - 5, 12 - 4, 11 - 3, 10 - 2, 9 - 1
                         )
                     )
@@ -64,9 +70,12 @@ final class TensorCombinationTests {
                         Tensor.horizontalVector(2 * 1),
                         Tensor.horizontalVector(4 * 2, 3 * 1),
                         Tensor.verticalVector(4 * 2, 3 * 1),
-                        Tensor.from(List.of(2, 2), 8 * 4, 7 * 3, 6 * 2, 5 * 1),
+                        Tensor.matrix(
+                            2, 2,
+                            8 * 4, 7 * 3, 6 * 2, 5 * 1
+                        ),
                         Tensor.from(
-                            List.of(2, 2, 2),
+                            new int[]{2, 2, 2},
                             16 * 8, 15 * 7, 14 * 6, 13 * 5, 12 * 4, 11 * 3, 10 * 2, 9 * 1
                         )
                     )
@@ -78,9 +87,12 @@ final class TensorCombinationTests {
                         Tensor.horizontalVector(2.0 / 1),
                         Tensor.horizontalVector(4.0 / 2, 3.0 / 1),
                         Tensor.verticalVector(4.0 / 2, 3.0 / 1),
-                        Tensor.from(List.of(2, 2), 8.0 / 4, 7.0 / 3, 6.0 / 2, 5.0 / 1),
+                        Tensor.matrix(
+                            2, 2,
+                            8.0 / 4, 7.0 / 3, 6.0 / 2, 5.0 / 1
+                        ),
                         Tensor.from(
-                            List.of(2, 2, 2),
+                            new int[]{2, 2, 2},
                             16.0 / 8,
                             15.0 / 7,
                             14.0 / 6,

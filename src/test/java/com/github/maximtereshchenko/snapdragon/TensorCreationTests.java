@@ -14,9 +14,9 @@ final class TensorCreationTests {
         return List.of(
             Tensor::horizontalVector,
             Tensor::verticalVector,
-            () -> Tensor.from(List.of(0, 0)),
-            () -> Tensor.from(List.of(1, 2, 0), 1, 2, 3),
-            () -> Tensor.from(List.of(2, 2), 1, 2, 3)
+            () -> Tensor.matrix(0, 0),
+            () -> Tensor.from(new int[]{1, 2, 0}, 1, 2, 3),
+            () -> Tensor.matrix(2, 2, 1, 2, 3)
         );
     }
 

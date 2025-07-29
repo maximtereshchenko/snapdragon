@@ -7,7 +7,8 @@ record CategoricalCrossEntropy() implements LossFunction {
         var shape = outputs.shape();
         return labels.product(Tensor.from(shape, index -> Math.log(outputs.value(index))))
                    .contracted(
-                       Tensor.verticalVector(-1).broadcasted(shape.getLast(), 1)
+                       Tensor.verticalVector(-1)
+                           .broadcasted(shape[shape.length - 1], 1)
                    );
     }
 

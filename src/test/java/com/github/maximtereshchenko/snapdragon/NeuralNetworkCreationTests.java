@@ -115,8 +115,8 @@ final class NeuralNetworkCreationTests extends BaseNeuralNetworkTest {
                             new LayerIndex(1),
                             new LayerIndex(2),
                             new Weights(
-                                Tensor.from(
-                                    List.of(2, 2),
+                                Tensor.matrix(
+                                    2, 2,
                                     0.6374174253501083, 0.5504370051176339,
                                     0.5975452777972018, 0.3332183994766498
                                 )

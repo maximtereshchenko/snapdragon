@@ -15,12 +15,9 @@ record ReLU() implements ActivationFunction {
     }
 
     private double derivative(double value) {
-        if (value < 0) {
+        if (value <= 0) {
             return 0;
         }
-        if (value > 0) {
-            return 1;
-        }
-        return 0;
+        return 1;
     }
 }

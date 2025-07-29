@@ -9,7 +9,7 @@ record Weights(Tensor tensor) {
             tensor.difference(
                 contracted.product(
                     Tensor.horizontalVector(
-                            learningRate.value() / deltasTensor.shape().getFirst()
+                            learningRate.value() / deltasTensor.shape()[0]
                         )
                         .broadcasted(contracted.shape()))
             )

@@ -33,7 +33,7 @@ final class NeuralNetworkFactory {
         if (weights.isEmpty() || weights.size() != biases.size()) {
             throw new IllegalArgumentException();
         }
-        var inputLayer = new InputLayer(weights.getFirst().shape().getFirst());
+        var inputLayer = new InputLayer(weights.getFirst().shape()[0]);
         var hiddenLayers = new ArrayList<HiddenLayer>();
         var networkWeights = new NetworkWeights();
         Layer left = inputLayer;
@@ -94,8 +94,8 @@ final class NeuralNetworkFactory {
     }
 
     private Tensor randomWeightsTensor(Random random, int outputs, int previousSize) {
-        return Tensor.from(
-            List.of(previousSize, outputs),
+        return Tensor.matrix(
+            previousSize, outputs,
             random.doubles((long) previousSize * outputs)
                 .toArray()
         );
@@ -109,9 +109,9 @@ final class NeuralNetworkFactory {
     ) {
         var shape = tensor.shape();
         if (
-            shape.size() != 2 ||
-                shape.getFirst() != left.size() ||
-                shape.getLast() != right.size()
+            shape.length != 2 ||
+                shape[0] != left.size() ||
+                shape[shape.length - 1] != right.size()
         ) {
             throw new IllegalArgumentException();
         }

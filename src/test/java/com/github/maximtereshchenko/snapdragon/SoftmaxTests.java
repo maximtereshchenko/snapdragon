@@ -2,8 +2,6 @@ package com.github.maximtereshchenko.snapdragon;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 final class SoftmaxTests {
@@ -29,16 +27,16 @@ final class SoftmaxTests {
         var secondSum = Math.exp(5) + Math.exp(6) + Math.exp(7);
         assertThat(
             activationFunction.apply(
-                Tensor.from(
-                    List.of(2, 3),
+                Tensor.matrix(
+                    2, 3,
                     2, 3, 4,
                     5, 6, 7
                 )
             )
         )
             .isEqualTo(
-                Tensor.from(
-                    List.of(2, 3),
+                Tensor.matrix(
+                    2, 3,
                     Math.exp(2) / firstSum, Math.exp(3) / firstSum, Math.exp(4) / firstSum,
                     Math.exp(5) / secondSum, Math.exp(6) / secondSum, Math.exp(7) / secondSum
                 )
@@ -82,13 +80,13 @@ final class SoftmaxTests {
     void givenMultipleBatches_whenDeltas_thenBatchContractedTensors() {
         assertThat(
             activationFunction.deltas(
-                Tensor.from(List.of(2, 2), 0.125, 0.875, 0.75, 0.25),
-                Tensor.from(List.of(2, 2), 70, 6, 35, 3)
+                Tensor.matrix(2, 2, 0.125, 0.875, 0.75, 0.25),
+                Tensor.matrix(2, 2, 70, 6, 35, 3)
             )
         )
             .isEqualTo(
-                Tensor.from(
-                    List.of(2, 2),
+                Tensor.matrix(
+                    2, 2,
                     70 * 0.125 * (1 - 0.125) + 6 * 0.125 * (0 - 0.875),
                     70 * 0.875 * (0 - 0.125) + 6 * 0.875 * (1 - 0.875),
                     35 * 0.75 * (1 - 0.75) + 3 * 0.75 * (0 - 0.25),

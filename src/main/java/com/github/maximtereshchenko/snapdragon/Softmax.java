@@ -1,7 +1,5 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import java.util.List;
-
 record Softmax() implements ActivationFunction {
 
     @Override
@@ -11,7 +9,7 @@ record Softmax() implements ActivationFunction {
         return exponents.quotient(
             exponents.contracted(
                     Tensor.horizontalVector(1)
-                        .broadcasted(shape.getLast(), 1)
+                        .broadcasted(shape[shape.length - 1], 1)
                 )
                 .broadcasted(shape)
         );
@@ -21,16 +19,16 @@ record Softmax() implements ActivationFunction {
     public Tensor deltas(Tensor outputs, Tensor errorSignal) {
         var shape = outputs.shape();
         var batchedJacobianMatrices = Tensor.from(
-            List.of(shape.getFirst(), shape.getLast(), shape.getLast()),
+            new int[]{shape[0], shape[shape.length - 1], shape[shape.length - 1]},
             index -> jacobian(index, outputs)
         );
         return errorSignal.batchContracted(batchedJacobianMatrices);
     }
 
-    private double jacobian(List<Integer> index, Tensor outputs) {
-        var batch = index.getFirst();
-        var row = index.get(1);
-        var column = index.getLast();
+    private double jacobian(int[] index, Tensor outputs) {
+        var batch = index[0];
+        var row = index[1];
+        var column = index[2];
         return outputs.value(batch, row) *
                    (kroneckerDelta(row, column) - outputs.value(batch, column));
     }

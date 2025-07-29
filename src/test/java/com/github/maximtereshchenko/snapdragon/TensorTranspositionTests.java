@@ -30,12 +30,12 @@ final class TensorTranspositionTests {
                 Tensor.verticalVector(1, 2)
             ),
             arguments(
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4),
-                Tensor.from(List.of(2, 2), 4, 1, 2, 3)
+                Tensor.matrix(2, 2, 1, 2, 3, 4),
+                Tensor.matrix(2, 2, 4, 1, 2, 3)
             ),
             arguments(
-                Tensor.from(List.of(3, 1, 2), 1, 2, 3, 4, 5, 6),
-                Tensor.from(List.of(2, 3, 1), 1, 2, 3, 4, 5, 6)
+                Tensor.from(new int[]{3, 1, 2}, 1, 2, 3, 4, 5, 6),
+                Tensor.from(new int[]{2, 3, 1}, 1, 2, 3, 4, 5, 6)
             )
         );
     }

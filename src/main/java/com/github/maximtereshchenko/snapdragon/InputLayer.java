@@ -10,7 +10,7 @@ record InputLayer(int size) implements Layer {
     Outputs outputs(Inputs inputs) {
         var tensor = inputs.tensor();
         var shape = tensor.shape();
-        if (shape.size() != 2 && shape.getLast() != size) {
+        if (shape.length != 2 && shape[shape.length - 1] != size) {
             throw new IllegalArgumentException();
         }
         return new Outputs(tensor);

@@ -30,17 +30,17 @@ final class TensorContractionTests {
                 Tensor.horizontalVector(1 * 3 + 2 * 4)
             ),
             arguments(
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4),
-                Tensor.from(List.of(2, 2), 5, 6, 7, 8),
-                Tensor.from(
-                    List.of(2, 2),
+                Tensor.matrix(2, 2, 1, 2, 3, 4),
+                Tensor.matrix(2, 2, 5, 6, 7, 8),
+                Tensor.matrix(
+                    2, 2,
                     1 * 5 + 2 * 7, 1 * 6 + 2 * 8,
                     3 * 5 + 4 * 7, 3 * 6 + 4 * 8
                 )
             ),
             arguments(
                 Tensor.from(
-                    List.of(2, 3, 4),
+                    new int[]{2, 3, 4},
                     1, 0, 0, 0,
                     0, 1, 0, 0,
                     0, 0, 1, 0,
@@ -49,7 +49,7 @@ final class TensorContractionTests {
                     0, 1, 0, 0
                 ),
                 Tensor.from(
-                    List.of(4, 2, 2),
+                    new int[]{4, 2, 2},
                     10, 11,
                     12, 13,
                     20, 21,
@@ -60,7 +60,7 @@ final class TensorContractionTests {
                     42, 43
                 ),
                 Tensor.from(
-                    List.of(2, 3, 2, 2),
+                    new int[]{2, 3, 2, 2},
                     10, 11, 12, 13,
                     20, 21, 22, 23,
                     30, 31, 32, 33,
@@ -74,15 +74,21 @@ final class TensorContractionTests {
 
     private static List<Arguments> incompatibleTensors() {
         return List.of(
-            arguments(Tensor.horizontalVector(1, 2), Tensor.horizontalVector(1)),
-            arguments(Tensor.horizontalVector(1, 2, 3), Tensor.verticalVector(1, 2)),
             arguments(
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4),
+                Tensor.horizontalVector(1, 2),
                 Tensor.horizontalVector(1)
             ),
             arguments(
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4),
-                Tensor.from(List.of(3, 2, 2), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+                Tensor.horizontalVector(1, 2, 3),
+                Tensor.verticalVector(1, 2)
+            ),
+            arguments(
+                Tensor.matrix(2, 2, 1, 2, 3, 4),
+                Tensor.horizontalVector(1)
+            ),
+            arguments(
+                Tensor.matrix(2, 2, 1, 2, 3, 4),
+                Tensor.from(new int[]{3, 2, 2}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
             )
         );
     }

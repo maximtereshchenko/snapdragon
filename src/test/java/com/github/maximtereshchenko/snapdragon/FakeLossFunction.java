@@ -19,7 +19,7 @@ final class FakeLossFunction implements LossFunction {
     @Override
     public Tensor loss(Tensor outputs, Tensor labels) {
         return Tensor.verticalVector(losses.remove())
-                   .broadcasted(labels.shape().getFirst(), 1);
+                   .broadcasted(labels.shape()[0], 1);
     }
 
     @Override

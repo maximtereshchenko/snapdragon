@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 final class ReLUTests {
@@ -31,16 +29,16 @@ final class ReLUTests {
     void givenMultipleInputs_whenApply_thenExpectedOutputs() {
         assertThat(
             activationFunction.apply(
-                Tensor.from(
-                    List.of(2, 3),
+                Tensor.matrix(
+                    2, 3,
                     -1, -0.5, 0,
                     0, 0.5, 1
                 )
             )
         )
             .isEqualTo(
-                Tensor.from(
-                    List.of(2, 3),
+                Tensor.matrix(
+                    2, 3,
                     0, 0, 0,
                     0, 0.5, 1
                 )
@@ -74,17 +72,17 @@ final class ReLUTests {
     void givenMultipleInputs_whenDeltas_thenExpectedDeltas() {
         assertThat(
             activationFunction.deltas(
-                Tensor.from(
-                    List.of(2, 3),
+                Tensor.matrix(
+                    2, 3,
                     -1, -0.5, 0,
                     0, 0.5, 1
                 ),
-                Tensor.horizontalVector(2).broadcasted(List.of(2, 3))
+                Tensor.horizontalVector(2).broadcasted(2, 3)
             )
         )
             .isEqualTo(
-                Tensor.from(
-                    List.of(2, 3),
+                Tensor.matrix(
+                    2, 3,
                     0, 0, 0,
                     0, 2, 2
                 )

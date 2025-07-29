@@ -149,9 +149,9 @@ final class NeuralNetworkOutputsTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Tensor.from(List.of(2, 2), 0.1, 0.2, 0.3, 0.4),
-                    Tensor.from(List.of(2, 2), 0.5, 0.6, 0.7, 0.8),
-                    Tensor.from(List.of(2, 2), 0.9, 0.10, 0.11, 0.12)
+                    Tensor.matrix(2, 2, 0.1, 0.2, 0.3, 0.4),
+                    Tensor.matrix(2, 2, 0.5, 0.6, 0.7, 0.8),
+                    Tensor.matrix(2, 2, 0.9, 0.10, 0.11, 0.12)
                 ),
                 List.of(
                     Tensor.horizontalVector(0.13, 0.14),

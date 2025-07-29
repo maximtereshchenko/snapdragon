@@ -1,86 +1,91 @@
 package com.github.maximtereshchenko.snapdragon;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.Executors;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.IntStream;
 
-final class Tensor {
+/**
+ * Benchmark                                      Mode  Cnt           Score           Error  Units
+ * ReferenceBasedTensorBenchmark.batchContracted  avgt    5   339791938.333 ±   2821413.067  ns/op
+ * ReferenceBasedTensorBenchmark.broadcasted      avgt    5  3817482638.867 ± 100908619.399  ns/op
+ * ReferenceBasedTensorBenchmark.contracted       avgt    5  3086805756.200 ±  77903664.535  ns/op
+ * ReferenceBasedTensorBenchmark.lastValue        avgt    5         131.653 ±         3.428  ns/op
+ * ReferenceBasedTensorBenchmark.sum              avgt    5   556131382.574 ±   5112955.680  ns/op
+ * ReferenceBasedTensorBenchmark.transposed       avgt    5   440744669.930 ±   4785493.123  ns/op
+ * <p>
+ * Benchmark                                  Mode  Cnt         Score          Error  Units
+ * ArrayBasedTensorBenchmark.batchContracted  avgt    5   2667709.475 ±    48775.030  ns/op
+ * ArrayBasedTensorBenchmark.broadcasted      avgt    5         9.109 ±        0.148  ns/op
+ * ArrayBasedTensorBenchmark.contracted       avgt    5   7653863.193 ±   229178.553  ns/op
+ * ArrayBasedTensorBenchmark.lastValue        avgt    5         3.974 ±        0.059  ns/op
+ * ArrayBasedTensorBenchmark.sum              avgt    5  98662410.208 ± 24821094.719  ns/op
+ * ArrayBasedTensorBenchmark.transposed       avgt    5         2.683 ±        0.044  ns/op
+ */
+public final class Tensor {
 
-    private final List<Tree> trees;
+    private final double[] values;
+    private final Shape shape;
 
-    private Tensor(List<Tree> trees) {
-        this.trees = trees;
+    private Tensor(double[] values, Shape shape) {
+        this.values = values;
+        this.shape = shape;
     }
 
-    static Tensor from(List<Integer> shape, double... values) {
-        var targetShape = new Shape(Index.from(shape));
-        return from(
-            targetShape,
-            index -> {
-                var arrayIndex = offset(targetShape, index);
-                if (arrayIndex >= values.length) {
-                    throw new IllegalArgumentException();
-                }
-                return values[arrayIndex];
-            }
-        );
+    public static Tensor from(int[] shape, double... values) {
+        var arrayBasedShape = ArrayBasedShape.from(shape);
+        if (length(arrayBasedShape) != values.length) {
+            throw new IllegalArgumentException();
+        }
+        return new Tensor(values, arrayBasedShape);
+    }
+
+    static Tensor from(int[] shape, ToDoubleFunction<int[]> function) {
+        return from(ArrayBasedShape.from(shape), function);
     }
 
     static Tensor horizontalVector(double... values) {
-        return from(List.of(1, values.length), values);
+        return matrix(1, values.length, values);
     }
 
     static Tensor verticalVector(double... values) {
-        return from(List.of(values.length, 1), values);
+        return matrix(values.length, 1, values);
     }
 
-    static Tensor from(List<Integer> shape, ToDoubleFunction<List<Integer>> function) {
-        return from(
-            new Shape(Index.from(shape)),
-            index -> function.applyAsDouble(index.components())
-        );
+    static Tensor matrix(int rows, int columns, double... values) {
+        return from(new int[]{rows, columns}, values);
     }
 
-    private static int offset(Shape shape, Index index) {
-        var offset = 0;
-        for (var current = 0; current < index.size(); current++) {
-            var added = index.value(current);
-            for (var next = current + 1; next < shape.size(); next++) {
-                added *= shape.value(next);
+    private static Tensor from(Shape shape, ToDoubleFunction<int[]> function) {
+        var tensor = new Tensor(new double[length(shape)], shape);
+        var indexes = new IndexIterator(shape.array());
+        try (var executor = Executors.newWorkStealingPool()) {
+            while (indexes.hasNext()) {
+                var index = indexes.next();
+                executor.execute(() -> tensor.set(index, function.applyAsDouble(index)));
             }
-            offset += added;
         }
-        return offset;
+        return tensor;
     }
 
-    private static Tensor from(Shape shape, ToDoubleFunction<Index> function) {
-        if (shape.first() == 0) {
-            throw new IllegalArgumentException();
+    private static int length(Shape shape) {
+        var length = 1;
+        for (var component : shape.array()) {
+            length *= component;
         }
-        return new Tensor(
-            IntStream.range(0, shape.first())
-                .mapToObj(Index::from)
-                .map(prefix ->
-                         tree(
-                             shape.decapitated(),
-                             index -> function.applyAsDouble(prefix.appended(index))
-                         )
-                )
-                .toList()
-        );
-    }
-
-    private static Tree tree(Shape shape, ToDoubleFunction<Index> function) {
-        if (shape.size() == 0) {
-            return new Leaf(function.applyAsDouble(Index.from()));
-        }
-        return new Branch(from(shape, function));
+        return length;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(trees);
+        var result = 1.0;
+        var iterator = new IndexIterator(shape.array());
+        while (iterator.hasNext()) {
+            result = 31 * result + value(iterator.next());
+        }
+        return (int) result;
     }
 
     @Override
@@ -88,33 +93,25 @@ final class Tensor {
         if (this == object) {
             return true;
         }
-        return object instanceof Tensor tensor &&
-                   Objects.equals(trees, tensor.trees);
-    }
-
-    @Override
-    public String toString() {
-        return trees.toString();
-    }
-
-    double value(Integer... index) {
-        return value(List.of(index));
-    }
-
-    double value(List<Integer> index) {
-        return value(Index.from(index));
-    }
-
-    List<Integer> shape() {
-        var shape = new ArrayList<Integer>();
-        for (
-            Tree current = new Branch(this);
-            current instanceof Branch(var tensor);
-            current = tensor.trees.getFirst()
-        ) {
-            shape.add(tensor.trees.size());
+        if (!(object instanceof Tensor tensor && hasEqualShape(tensor))) {
+            return false;
         }
-        return shape;
+        var iterator = new IndexIterator(shape.array());
+        while (iterator.hasNext()) {
+            var index = iterator.next();
+            if (value(index) != tensor.value(index)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    double value(int... index) {
+        return values[shape.offset(index)];
+    }
+
+    int[] shape() {
+        return shape.array();
     }
 
     Tensor sum(Tensor tensor) {
@@ -133,279 +130,280 @@ final class Tensor {
         return combined(tensor, (first, second) -> first / second);
     }
 
-    Tensor broadcasted(Integer... shape) {
-        return broadcasted(List.of(shape));
-    }
-
-    Tensor broadcasted(List<Integer> shape) {
-        var shapeInstance = shapeInstance();
-        return Tensor.from(
-            shapeInstance.broadcasted(shape),
-            index -> value(shapeInstance.indexFromBroadcasted(index))
+    Tensor broadcasted(int... shape) {
+        return new Tensor(
+            values,
+            BroadcastedShape.from(this.shape, ArrayBasedShape.from(shape))
         );
     }
 
     Tensor transposed() {
-        return Tensor.from(shapeInstance().transposed(), index -> value(index.transposed()));
+        return new Tensor(values, new TransposedShape(shape));
     }
 
     Tensor contracted(Tensor tensor) {
-        var shape = shapeInstance();
-        var contracted = shape.contracted(tensor.shapeInstance());
-        return Tensor.from(
-            contracted,
-            index -> IntStream.range(0, shape.last())
-                         .mapToObj(Index::from)
-                         .mapToDouble(position -> product(shape, tensor, index, position))
-                         .sum()
+        return from(
+            contracted(tensor.shape, 0),
+            index -> productSum(tensor, index, 0)
         );
     }
 
     Tensor batchContracted(Tensor tensor) {
-        var shape = shapeInstance();
-        if (!shape.isBatchContractable(tensor.shapeInstance())) {
-            throw new IllegalArgumentException();
-        }
-        var contractedTrees = new ArrayList<Tree>();
-        for (var i = 0; i < shape.first(); i++) {
-            var index = Index.from(i);
-            if (tree(index) instanceof Branch(var first) &&
-                    tensor.tree(index) instanceof Branch(var second)) {
-                contractedTrees.add(new Branch(first.contracted(second)));
-            }
-        }
-        return new Tensor(contractedTrees);
+        return from(
+            contracted(tensor.shape, 1),
+            index -> productSum(tensor, index, 1)
+        );
     }
 
-    private double product(Shape shape, Tensor tensor, Index index, Index position) {
-        return value(index.slice(0, shape.size() - 1).appended(position)) *
-                   tensor.value(position.appended(index.slice(shape.size() - 1, index.size())));
+    private Shape contracted(Shape shape, int dimension) {
+        var thisShapeArray = this.shape.array();
+        var otherShapeArray = shape.array();
+        for (var i = 0; i < dimension; i++) {
+            if (thisShapeArray[i] != otherShapeArray[i]) {
+                throw new IllegalArgumentException();
+            }
+        }
+        if (thisShapeArray[thisShapeArray.length - 1] != otherShapeArray[dimension]) {
+            throw new IllegalArgumentException();
+        }
+        var contracted = new int[thisShapeArray.length + otherShapeArray.length - dimension - 2];
+        System.arraycopy(
+            thisShapeArray,
+            0,
+            contracted,
+            0,
+            thisShapeArray.length - 1
+        );
+        System.arraycopy(
+            otherShapeArray,
+            dimension + 1,
+            contracted,
+            thisShapeArray.length - 1,
+            otherShapeArray.length - dimension - 1
+        );
+        return ArrayBasedShape.from(contracted);
+    }
+
+    private void set(int[] index, double value) {
+        values[shape.offset(index)] = value;
+    }
+
+    private double productSum(Tensor tensor, int[] index, int dimension) {
+        var sum = 0.0;
+        var thisShapeArray = shape.array();
+        var left = new int[thisShapeArray.length];
+        System.arraycopy(index, 0, left, 0, left.length - 1);
+        var otherShapeArray = tensor.shape.array();
+        var right = new int[otherShapeArray.length];
+        System.arraycopy(index, 0, right, 0, dimension);
+        System.arraycopy(
+            index,
+            thisShapeArray.length - 1,
+            right,
+            dimension + 1,
+            right.length - dimension - 1
+        );
+        for (
+            var contractedDimension = 0;
+            contractedDimension < thisShapeArray[thisShapeArray.length - 1];
+            contractedDimension++
+        ) {
+            left[left.length - 1] = contractedDimension;
+            right[dimension] = contractedDimension;
+            sum += value(left) * tensor.value(right);
+        }
+        return sum;
     }
 
     private Tensor combined(Tensor tensor, DoubleBinaryOperator operator) {
-        var shape = shapeInstance();
-        if (!shape.equals(tensor.shapeInstance())) {
+        if (!hasEqualShape(tensor)) {
             throw new IllegalArgumentException();
         }
         return Tensor.from(
-            shape,
+            ArrayBasedShape.from(shape.array()),
             index -> operator.applyAsDouble(value(index), tensor.value(index))
         );
     }
 
-    private double value(Index index) {
-        if (!(tree(index) instanceof Leaf(var value))) {
-            throw new IllegalArgumentException();
-        }
-        return value;
+    private boolean hasEqualShape(Tensor tensor) {
+        return Arrays.equals(shape(), tensor.shape());
     }
 
-    private Tree tree(Index index) {
-        var tree = trees.get(index.first());
-        if (index.size() == 1) {
-            return tree;
-        }
-        if (!(tree instanceof Branch(var tensor))) {
-            throw new IllegalArgumentException();
-        }
-        return tensor.tree(index.decapitated());
+    private interface Shape {
+
+        int offset(int[] index);
+
+        int[] array();
     }
 
-    private Shape shapeInstance() {
-        return new Shape(Index.from(shape()));
-    }
+    private static final class ArrayBasedShape implements Shape {
 
-    private sealed interface Tree {}
+        private final int[] components;
 
-    private record Branch(Tensor tensor) implements Tree {
-
-        @Override
-        public String toString() {
-            return tensor.toString();
-        }
-    }
-
-    private record Leaf(double value) implements Tree {
-
-        @Override
-        public String toString() {
-            return "%.2f".formatted(value);
-        }
-    }
-
-    private static final class Shape {
-
-        private final Index max;
-
-        Shape(Index max) {
-            this.max = max;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(max);
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (this == object) {
-                return true;
-            }
-            return object instanceof Shape shape &&
-                       Objects.equals(max, shape.max);
-        }
-
-        int first() {
-            return max.first();
-        }
-
-        int last() {
-            return max.last();
-        }
-
-        int value(int offset) {
-            return max.value(offset);
-        }
-
-        int size() {
-            return max.size();
-        }
-
-        Shape broadcasted(List<Integer> shape) {
-            var broadcasted = Index.from(shape);
-            var padded = max.padded(shape.size());
-            for (var i = 0; i < broadcasted.size(); i++) {
-                var value = padded.value(i);
-                if (value != 1 && value != broadcasted.value(i)) {
-                    throw new IllegalArgumentException();
-                }
-            }
-            return new Shape(broadcasted);
-        }
-
-        Shape contracted(Shape shape) {
-            return new Shape(max.contracted(shape.max).orElseThrow(IllegalArgumentException::new));
-        }
-
-        boolean isBatchContractable(Shape shape) {
-            if (first() != shape.first()) {
-                return false;
-            }
-            return max.decapitated().contracted(shape.max.decapitated()).isPresent();
-        }
-
-        Shape transposed() {
-            return new Shape(max.transposed());
-        }
-
-        Index indexFromBroadcasted(Index broadcasted) {
-            var index = new ArrayList<Integer>();
-            var difference = broadcasted.size() - size();
-            for (var offset = size() - 1; offset >= 0; offset--) {
-                index.addFirst(
-                    Math.min(max.value(offset) - 1, broadcasted.value(offset + difference))
-                );
-            }
-            return Index.from(index);
-        }
-
-        Shape decapitated() {
-            return new Shape(max.decapitated());
-        }
-    }
-
-    private static final class Index {
-
-        private final List<Integer> components;
-
-        private Index(List<Integer> components) {
+        private ArrayBasedShape(int[] components) {
             this.components = components;
         }
 
-        static Index from(int... components) {
-            return new Index(Arrays.stream(components).boxed().toList());
-        }
-
-        static Index from(List<Integer> components) {
-            if (hasNegative(components)) {
+        static Shape from(int[] components) {
+            if (components.length < 2 || hasNonPositive(components)) {
                 throw new IllegalArgumentException();
             }
-            return new Index(components);
+            return new ArrayBasedShape(components);
         }
 
-        private static boolean hasNegative(List<Integer> components) {
-            return components.stream().anyMatch(component -> component < 0);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(components);
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (this == object) {
-                return true;
+        private static boolean hasNonPositive(int[] components) {
+            for (var component : components) {
+                if (component < 1) {
+                    return true;
+                }
             }
-            return object instanceof Index index &&
-                       Objects.equals(components, index.components);
+            return false;
         }
 
-        List<Integer> components() {
+        @Override
+        public int offset(int[] index) {
+            var offset = 0;
+            for (var i = 0; i < index.length; i++) {
+                var added = index[i];
+                for (var next = i + 1; next < components.length; next++) {
+                    added *= components[next];
+                }
+                offset += added;
+            }
+            return offset;
+        }
+
+        @Override
+        public int[] array() {
             return components;
         }
+    }
 
-        int first() {
-            return components.getFirst();
+    private static final class BroadcastedShape implements Shape {
+
+        private final Shape original;
+        private final Shape broadcasted;
+
+        private BroadcastedShape(Shape original, Shape broadcasted) {
+            this.original = original;
+            this.broadcasted = broadcasted;
         }
 
-        int value(int offset) {
-            return components.get(offset);
-        }
-
-        int last() {
-            return components.getLast();
-        }
-
-        int size() {
-            return components.size();
-        }
-
-        Index padded(int size) {
-            if (size < size()) {
+        static Shape from(Shape original, Shape broadcasted) {
+            var broadcastedArray = broadcasted.array();
+            var originalArray = original.array();
+            int difference = broadcastedArray.length - originalArray.length;
+            if (difference < 0) {
                 throw new IllegalArgumentException();
             }
-            var padded = this;
-            while (padded.size() != size) {
-                padded = Index.from(1).appended(padded);
+            for (var i = broadcastedArray.length - 1; i >= 0; i--) {
+                var originalIndex = i - difference;
+                if (
+                    originalIndex >= 0 &&
+                        originalArray[originalIndex] != 1 &&
+                        originalArray[originalIndex] != broadcastedArray[i]
+                ) {
+                    throw new IllegalArgumentException();
+                }
             }
-            return padded;
+            return new BroadcastedShape(original, broadcasted);
         }
 
-        Optional<Index> contracted(Index index) {
-            if (last() != index.first() || size() < 1 || index.size() < 2) {
-                return Optional.empty();
+        @Override
+        public int offset(int[] index) {
+            var originalArray = original.array();
+            var originalIndex = new int[originalArray.length];
+            var broadcastedArray = broadcasted.array();
+            int difference = broadcastedArray.length - originalArray.length;
+            for (var i = 0; i < originalIndex.length; i++) {
+                originalIndex[i] = Math.min(originalArray[i] - 1, index[i + difference]);
             }
-            return Optional.of(slice(0, size() - 1).appended(index.slice(1, index.size())));
+            return original.offset(originalIndex);
         }
 
-        Index transposed() {
-            return Index.from(components.getLast())
-                       .appended(Index.from(components.subList(0, size() - 1)));
+        @Override
+        public int[] array() {
+            return broadcasted.array();
+        }
+    }
+
+    private static final class TransposedShape implements Shape {
+
+        private final Shape original;
+
+        TransposedShape(Shape original) {
+            this.original = original;
         }
 
-        Index slice(int from, int to) {
-            return Index.from(components.subList(from, to));
+        @Override
+        public int offset(int[] index) {
+            var reversedIndex = new int[index.length];
+            System.arraycopy(index, 1, reversedIndex, 0, index.length - 1);
+            reversedIndex[reversedIndex.length - 1] = index[0];
+            return original.offset(reversedIndex);
         }
 
-        Index decapitated() {
-            return slice(1, size());
+        @Override
+        public int[] array() {
+            var originalArray = original.array();
+            var transposed = new int[originalArray.length];
+            System.arraycopy(
+                originalArray,
+                0,
+                transposed,
+                1,
+                originalArray.length - 1
+            );
+            transposed[0] = originalArray[originalArray.length - 1];
+            return transposed;
+        }
+    }
+
+    private static final class IndexIterator implements Iterator<int[]> {
+
+        private final int[] index;
+        private final int[] shape;
+        private boolean advance = false;
+        private boolean exhausted = false;
+
+        IndexIterator(int[] shape) {
+            this.index = new int[shape.length];
+            this.shape = shape;
         }
 
-        Index appended(Index index) {
-            var extended = new ArrayList<>(components);
-            extended.addAll(index.components);
-            return Index.from(extended);
+        @Override
+        public boolean hasNext() {
+            advance();
+            return !exhausted;
+        }
+
+        @Override
+        public int[] next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            advance = true;
+            var copy = new int[index.length];
+            System.arraycopy(index, 0, copy, 0, index.length);
+            return copy;
+        }
+
+        private void advance() {
+            if (!advance || exhausted) {
+                return;
+            }
+            var offset = index.length - 1;
+            while (offset >= 0) {
+                if (index[offset] == shape[offset] - 1) {
+                    index[offset] = 0;
+                    offset--;
+                } else {
+                    index[offset]++;
+                    advance = false;
+                    return;
+                }
+            }
+            exhausted = true;
         }
     }
 }

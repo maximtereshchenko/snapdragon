@@ -4,7 +4,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,10 +15,10 @@ final class TensorBatchContractionTests {
     private static Stream<Arguments> batchContractedTensors() {
         return Stream.of(
             arguments(
-                Tensor.from(List.of(2, 2, 2), 1, 2, 3, 4, 5, 6, 7, 8),
-                Tensor.from(List.of(2, 2, 2), 9, 10, 11, 12, 13, 14, 15, 16),
+                Tensor.from(new int[]{2, 2, 2}, 1, 2, 3, 4, 5, 6, 7, 8),
+                Tensor.from(new int[]{2, 2, 2}, 9, 10, 11, 12, 13, 14, 15, 16),
                 Tensor.from(
-                    List.of(2, 2, 2),
+                    new int[]{2, 2, 2},
                     1 * 9 + 2 * 11, 1 * 10 + 2 * 12,
                     3 * 9 + 4 * 11, 3 * 10 + 4 * 12,
                     5 * 13 + 6 * 15, 5 * 14 + 6 * 16,
@@ -27,19 +26,19 @@ final class TensorBatchContractionTests {
                 )
             ),
             arguments(
-                Tensor.from(List.of(2, 1, 2), 1, 2, 3, 4),
-                Tensor.from(List.of(2, 2, 1), 5, 6, 7, 8),
+                Tensor.from(new int[]{2, 1, 2}, 1, 2, 3, 4),
+                Tensor.from(new int[]{2, 2, 1}, 5, 6, 7, 8),
                 Tensor.from(
-                    List.of(2, 1, 1),
+                    new int[]{2, 1, 1},
                     1 * 5 + 2 * 6,
                     3 * 7 + 4 * 8
                 )
             ),
             arguments(
-                Tensor.from(List.of(2, 2, 1), 1, 2, 3, 4),
-                Tensor.from(List.of(2, 1, 2), 5, 6, 7, 8),
+                Tensor.from(new int[]{2, 2, 1}, 1, 2, 3, 4),
+                Tensor.from(new int[]{2, 1, 2}, 5, 6, 7, 8),
                 Tensor.from(
-                    List.of(2, 2, 2),
+                    new int[]{2, 2, 2},
                     1 * 5, 1 * 6,
                     2 * 5, 2 * 6,
                     3 * 7, 3 * 8,
@@ -48,7 +47,7 @@ final class TensorBatchContractionTests {
             ),
             arguments(
                 Tensor.from(
-                    List.of(2, 2, 2, 3),
+                    new int[]{2, 2, 2, 3},
                     1, 2, 3,
                     4, 5, 6,
                     7, 8, 9,
@@ -59,7 +58,7 @@ final class TensorBatchContractionTests {
                     22, 23, 24
                 ),
                 Tensor.from(
-                    List.of(2, 3, 2, 2),
+                    new int[]{2, 3, 2, 2},
                     1, 0,
                     0, 1,
                     1, 1,
@@ -74,7 +73,7 @@ final class TensorBatchContractionTests {
                     11, 12
                 ),
                 Tensor.from(
-                    List.of(2, 2, 2, 2, 2),
+                    new int[]{2, 2, 2, 2, 2},
                     1 * 1 + 2 * 1 + 3 * 2,
                     1 * 0 + 2 * 1 + 3 * 2,
                     1 * 0 + 2 * 1 + 3 * 2,
@@ -115,20 +114,20 @@ final class TensorBatchContractionTests {
     private static Stream<Arguments> incompatibleBatchTensors() {
         return Stream.of(
             arguments(
-                Tensor.from(List.of(2, 2, 2), 1, 2, 3, 4, 5, 6, 7, 8),
-                Tensor.from(List.of(3, 2, 2), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+                Tensor.from(new int[]{2, 2, 2}, 1, 2, 3, 4, 5, 6, 7, 8),
+                Tensor.from(new int[]{3, 2, 2}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
             ),
             arguments(
-                Tensor.from(List.of(2, 2, 3), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-                Tensor.from(List.of(2, 2, 2), 1, 2, 3, 4, 5, 6, 7, 8)
+                Tensor.from(new int[]{2, 2, 3}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+                Tensor.from(new int[]{2, 2, 2}, 1, 2, 3, 4, 5, 6, 7, 8)
             ),
             arguments(
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4),
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4)
+                Tensor.matrix(2, 2, 1, 2, 3, 4),
+                Tensor.matrix(2, 2, 1, 2, 3, 4)
             ),
             arguments(
-                Tensor.from(List.of(2, 2), 1, 2, 3, 4),
-                Tensor.from(List.of(1, 2, 2), 1, 2, 3, 4)
+                Tensor.matrix(2, 2, 1, 2, 3, 4),
+                Tensor.from(new int[]{1, 2, 2}, 1, 2, 3, 4)
             )
         );
     }

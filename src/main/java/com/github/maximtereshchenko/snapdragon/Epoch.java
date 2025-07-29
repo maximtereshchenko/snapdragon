@@ -1,7 +1,6 @@
 package com.github.maximtereshchenko.snapdragon;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiFunction;
 
 final class Epoch {
@@ -147,19 +146,19 @@ final class Epoch {
         var outputsTensor = outputs.tensor();
         var shape = outputsTensor.shape();
         var labelsTensor = labels.tensor();
-        for (var row = 0; row < shape.getFirst(); row++) {
+        for (var row = 0; row < shape[0]; row++) {
             if (maximumValueIndex(outputsTensor, shape, row) ==
                     maximumValueIndex(labelsTensor, shape, row)) {
                 correct++;
             }
         }
-        return correct / shape.getFirst();
+        return correct / shape[0];
     }
 
-    private int maximumValueIndex(Tensor tensor, List<Integer> shape, int row) {
+    private int maximumValueIndex(Tensor tensor, int[] shape, int row) {
         var currentMax = Double.MIN_VALUE;
         var index = -1;
-        for (var column = 0; column < shape.getLast(); column++) {
+        for (var column = 0; column < shape[shape.length - 1]; column++) {
             var currentValue = tensor.value(row, column);
             if (currentValue > currentMax) {
                 currentMax = currentValue;
@@ -172,8 +171,8 @@ final class Epoch {
     private double loss(Outputs outputs, Labels labels) {
         var loss = lossFunction.loss(outputs.tensor(), labels.tensor());
         var shape = loss.shape();
-        return Tensor.horizontalVector(1.0 / shape.getFirst())
-                   .broadcasted(1, shape.getFirst())
+        return Tensor.horizontalVector(1.0 / shape[0])
+                   .broadcasted(1, shape[0])
                    .contracted(loss)
                    .value(0, 0);
     }

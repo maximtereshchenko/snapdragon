@@ -270,9 +270,9 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
         assertThat(
             neuralNetwork(
                 List.of(
-                    Tensor.from(List.of(2, 2), 0.3, 0.4, 0.1, 0.6),
-                    Tensor.from(List.of(2, 2), 0.7, 0.8, 0.9, 1.0),
-                    Tensor.from(List.of(2, 2), 0.11, 0.24, 0.26, 0.14)
+                    Tensor.matrix(2, 2, 0.3, 0.4, 0.1, 0.6),
+                    Tensor.matrix(2, 2, 0.7, 0.8, 0.9, 1.0),
+                    Tensor.matrix(2, 2, 0.11, 0.24, 0.26, 0.14)
                 ),
                 List.of(
                     Tensor.horizontalVector(0.15, 0.16),
@@ -290,22 +290,22 @@ final class NeuralNetworkCalibrationTests extends BaseNeuralNetworkTest {
             .isEqualTo(
                 neuralNetwork(
                     List.of(
-                        Tensor.from(
-                            List.of(2, 2),
+                        Tensor.matrix(
+                            2, 2,
                             0.3 - 0.23 * 0.42 * outputDelta13,
                             0.4 - 0.23 * 0.42 * outputDelta14,
                             0.1 - 0.23 * 0.44 * outputDelta13,
                             0.6 - 0.23 * 0.44 * outputDelta14
                         ),
-                        Tensor.from(
-                            List.of(2, 2),
+                        Tensor.matrix(
+                            2, 2,
                             0.7 - 0.23 * output13 * outputDelta15,
                             0.8 - 0.23 * output13 * outputDelta16,
                             0.9 - 0.23 * output14 * outputDelta15,
                             1.0 - 0.23 * output14 * outputDelta16
                         ),
-                        Tensor.from(
-                            List.of(2, 2),
+                        Tensor.matrix(
+                            2, 2,
                             0.11 - 0.23 * output15 * output17,
                             0.24 - 0.23 * output15 * output18,
                             0.26 - 0.23 * output16 * output17,

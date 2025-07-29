@@ -43,10 +43,10 @@ final class MnistSamplesTests {
             .toIterable()
             .containsExactly(
                 new BatchedLabeledSample(
-                    new Inputs(Tensor.from(List.of(2, 4), 3, 4, 5, 6, 7, 8, 9, 10)),
+                    new Inputs(Tensor.matrix(2, 4, 3, 4, 5, 6, 7, 8, 9, 10)),
                     new Labels(
-                        Tensor.from(
-                            List.of(2, 10),
+                        Tensor.matrix(
+                            2, 10,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                             0, 1, 0, 0, 0, 0, 0, 0, 0, 0
                         )
